@@ -14,3 +14,16 @@ data class Community(
     val creatorId: String,
     val subscriptions: Int?
 )
+data class CommunityDto(
+    val id: String,
+    val comName: String,
+    val comPicture: String?
+)
+
+data class CommunityResponse(
+    val data: List<CommunityDto>,
+    val pageNumber: Int,
+    val pageSize: Int,
+    val totalRecords: Int,
+    val totalPages: Int
+)

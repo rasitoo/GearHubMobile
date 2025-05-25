@@ -25,11 +25,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gearhubmobile.ui.screens.Screen
+import com.example.gearhubmobile.ui.screens.community.CommunityList
+import com.example.gearhubmobile.ui.screens.community.CommunityViewModel
 import com.example.gearhubmobile.ui.screens.home.HomeScreen
 import com.example.gearhubmobile.ui.screens.home.PlaceholderScreen
 import com.example.gearhubmobile.ui.theme.GearHubMobileTheme
@@ -46,9 +48,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
+    val communityViewModel: CommunityViewModel = viewModel()
+
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -68,6 +73,10 @@ fun MainScreen() {
                 Divider()
                 Text("Mis comunidades", modifier = Modifier.padding(16.dp))
                 Text("Recomendadas", modifier = Modifier.padding(16.dp))
+                CommunityList(
+                    viewModel = communityViewModel,
+                    onCommunityClick = { navController.navigate(Screen.Communities.route) }
+                )
             }
         }
     ) {

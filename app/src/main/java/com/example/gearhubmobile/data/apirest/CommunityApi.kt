@@ -5,12 +5,13 @@ package com.example.gearhubmobile.data.apirest
  * @date 21 mayo, 2025
  */
 import com.example.gearhubmobile.data.models.Community
+import com.example.gearhubmobile.data.models.CommunityResponse
 import retrofit2.http.*
 
 interface CommunityApi {
 
     @GET("api/Community/All")
-    suspend fun getAllCommunities(): List<Community>
+    suspend fun getAllCommunities(): CommunityResponse
 
     @GET("api/Community/bycreator/{creatorId}")
     suspend fun getCommunitiesByCreator(@Path("creatorId") creatorId: String): List<Community>

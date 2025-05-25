@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gearhubmobile.data.apirest.RetrofitInstance
-import com.example.gearhubmobile.data.models.Community
+import com.example.gearhubmobile.data.apirest.RetrofitInstance.communityApi
+import com.example.gearhubmobile.data.models.CommunityDto
 import kotlinx.coroutines.launch
 
 /**
@@ -14,20 +14,17 @@ import kotlinx.coroutines.launch
  * @date 21 mayo, 2025
  */
 class CommunityViewModel : ViewModel() {
-    var communities by mutableStateOf<List<Community>>(emptyList())
-        private set
-
+    var communities by mutableStateOf<List<CommunityDto>>(emptyList())
     var isLoading by mutableStateOf(false)
-        private set
 
     fun loadCommunities() {
         viewModelScope.launch {
             isLoading = true
             try {
-                val result = RetrofitInstance.communityApi.getAllCommunities()
-                communities = result
+                val response = communityApi.getAllCommunities()
+                communities = response.data
             } catch (e: Exception) {
-                println("Error: ${e.message}")
+                // Manejo de error
             } finally {
                 isLoading = false
             }
