@@ -60,7 +60,6 @@ fun MainScreen() {
         Screen.Chats
     )
 
-    // Drawer izquierda: solo uno, con simulación de drawer derecho aparte si se desea.
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -75,7 +74,7 @@ fun MainScreen() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Mi aplicación") },
+                    title = { Text("Gearhub") },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch { drawerState.open() }

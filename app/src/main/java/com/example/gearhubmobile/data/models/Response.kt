@@ -1,9 +1,15 @@
 package com.example.gearhubmobile.data.models
 
-import android.R.string
 
 /**
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
-data class Response(val id: string)
+data class Response(
+    val id: String,
+    val creatorId: String,
+    val content: String?,
+    val likes: Int?,
+    val isDeleted: Boolean?,
+    val responses: Int?
+)
