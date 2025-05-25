@@ -1,9 +1,25 @@
 package com.example.gearhubmobile.data.apirest
 
+import com.example.gearhubmobile.data.models.Auth.LoginRequest
+import com.example.gearhubmobile.data.models.Auth.LoginResponse
+import com.example.gearhubmobile.data.models.Auth.RegisterRequest
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+
 /**
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
-class AuthApi {
+interface AuthApi {
+    @POST("User/RegisterUsers")
+    suspend fun register(@Body user: RegisterRequest): Response<Unit>
+
+    @GET("User/RequestChangePassword/{email}")
+    suspend fun requestChange(): Response<Unit>
+
+    @POST("User/LogUser")
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
 }

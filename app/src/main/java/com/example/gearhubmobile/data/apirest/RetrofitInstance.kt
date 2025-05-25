@@ -1,5 +1,7 @@
 package com.example.gearhubmobile.data.apirest
 
+import com.example.gearhubmobile.utils.AuthInterceptor
+import com.example.gearhubmobile.utils.SessionManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -15,18 +17,20 @@ object RetrofitInstance {
 
     private const val BASE_URL = "http://10.0.2.2:8000/"
 
-    private val logging = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
-    }
+    private lateinit var retrofit: Retrofit
 
-    private val client = OkHttpClient.Builder()
-        .addInterceptor(logging)
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(20, TimeUnit.SECONDS)
-        .build()
+    fun init(sessionManager: SessionManager) {
+        val logging = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .addInterceptor(AuthInterceptor(sessionManager))
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .build()
 
-    private val retrofit by lazy {
-        Retrofit.Builder()
+        retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
@@ -48,5 +52,4 @@ object RetrofitInstance {
     val reviewApi: ReviewApi by lazy {
         retrofit.create(ReviewApi::class.java)
     }
-
 }

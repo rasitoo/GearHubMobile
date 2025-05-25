@@ -36,6 +36,21 @@ import com.example.gearhubmobile.ui.screens.home.HomeScreen
 import com.example.gearhubmobile.ui.screens.home.PlaceholderScreen
 import com.example.gearhubmobile.ui.theme.GearHubMobileTheme
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.*
+import com.example.gearhubmobile.data.apirest.RetrofitInstance
+import com.example.gearhubmobile.data.repositories.AuthRepository
+import com.example.gearhubmobile.ui.screens.InitScreen
+import com.example.gearhubmobile.ui.screens.login.AuthViewModel
+import com.example.gearhubmobile.ui.screens.login.AuthViewModelFactory
+import com.example.gearhubmobile.ui.screens.login.LoginScreen
+import com.example.gearhubmobile.utils.SessionManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,15 +58,63 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GearHubMobileTheme {
-                MainScreen()
+                val navController = rememberNavController()
+                val context = LocalContext.current
+                val sessionManager = remember { SessionManager(context) }
+
+                AppNavHost(navController = navController, sessionManager = sessionManager)
             }
         }
     }
 }
 
+@Composable
+fun AppNavHost(navController: NavHostController, sessionManager: SessionManager) {
+    NavHost(navController = navController, startDestination = InitScreen.Start.route) {
+        composable(InitScreen.Start.route) {
+            StartScreen(sessionManager, navController)
+        }
+        composable(InitScreen.Login.route) {
+            val repository = remember { AuthRepository(RetrofitInstance.authApi, sessionManager) }
+            val factory = remember { AuthViewModelFactory(repository) }
+            val viewModel: AuthViewModel = viewModel(factory = factory)
+            LoginScreen(viewModel = viewModel) {
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(InitScreen.Login.route) { inclusive = true }
+                }
+            }
+        }
+        composable(Screen.Home.route) {
+            MainScreen(navController = navController)
+        }
+    }
+}
+
+@Composable
+fun StartScreen(sessionManager: SessionManager, navController: NavHostController) {
+    val token by sessionManager.token.collectAsState(initial = null)
+
+    LaunchedEffect(token) {
+        if (token != null) {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(InitScreen.Start.route) { inclusive = true }
+            }
+        } else {
+            navController.navigate(InitScreen.Login.route) {
+                popUpTo(InitScreen.Start.route) { inclusive = true }
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavHostController) {
     val communityViewModel: CommunityViewModel = viewModel()
 
     val navController = rememberNavController()
@@ -111,8 +174,8 @@ fun MainScreen() {
                                     launchSingleTop = true
                                 }
                             },
-                            icon = { Icon(screen.icon, contentDescription = screen.label) },
-                            label = { Text(screen.label) }
+                            icon = { screen.icon?.let { Icon(it, contentDescription = screen.label ?: "") } },
+                            label = { Text(screen.label ?: "") }
                         )
                     }
                 }
