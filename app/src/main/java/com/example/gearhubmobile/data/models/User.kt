@@ -17,3 +17,24 @@ data class User(
     val countFollowing: Int,
     val type: Int,
 )
+
+data class UserProfileCreateRequest(
+    val name: String,
+    val userName: String,
+    val desc: String,
+    val address: String? = null,
+    val profilePicture: String? = null
+)
+
+data class UserProfileUpdateRequest(
+    val name: String,
+    val userName: String,
+    val desc: String?,
+    val address: String?,
+    val profilePicture: String?
+)
+
+data class FollowRequest(
+    val userId: String,
+    val otherUserId: String
+)

@@ -1,8 +1,8 @@
 package com.example.gearhubmobile.data.apirest
 
-import com.example.gearhubmobile.data.models.Auth.LoginRequest
-import com.example.gearhubmobile.data.models.Auth.LoginResponse
-import com.example.gearhubmobile.data.models.Auth.RegisterRequest
+import com.example.gearhubmobile.data.models.LoginRequest
+import com.example.gearhubmobile.data.models.LoginResponse
+import com.example.gearhubmobile.data.models.RegisterRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

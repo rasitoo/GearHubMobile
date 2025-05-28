@@ -13,3 +13,11 @@ data class Chat(
     val name: String?,
     val createdAt: LocalDateTime?
 )
+
+data class CreateChatRequest(
+    val name: String
+)
+
+data class UpdateChatRequest(
+    val name: String
+)

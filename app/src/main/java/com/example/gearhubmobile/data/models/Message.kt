@@ -13,3 +13,13 @@ data class Message(
     val content: String?,
     val sentAt: LocalDateTime?
 )
+
+
+data class CreateMessageRequest(
+    val content: String,
+    val chatId: String
+)
+
+data class UpdateMessageRequest(
+    val content: String
+)

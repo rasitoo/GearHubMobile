@@ -13,3 +13,13 @@ data class Response(
     val isDeleted: Boolean?,
     val responses: Int?
 )
+data class CreateResponseRequest(
+    val content: String,
+    val parentId: String,
+    val threadId: String
+)
+
+data class UpdateResponseRequest(
+    val id: String,
+    val content: String
+)
