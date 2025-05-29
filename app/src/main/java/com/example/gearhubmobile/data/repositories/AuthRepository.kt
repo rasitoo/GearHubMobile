@@ -3,8 +3,8 @@ package com.example.gearhubmobile.data.repositories
 
 import com.example.gearhubmobile.data.apirest.AuthApi
 import com.example.gearhubmobile.utils.SessionManager
-import com.example.gearhubmobile.data.models.Auth.LoginRequest
-import com.example.gearhubmobile.data.models.Auth.RegisterRequest
+import com.example.gearhubmobile.data.models.LoginRequest
+import com.example.gearhubmobile.data.models.RegisterRequest
 import kotlinx.coroutines.flow.Flow
 
 /**
