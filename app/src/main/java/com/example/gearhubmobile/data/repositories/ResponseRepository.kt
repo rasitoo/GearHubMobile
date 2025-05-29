@@ -1,0 +1,60 @@
+package com.example.gearhubmobile.data.repositories
+
+import com.example.gearhubmobile.data.apirest.ResponseApi
+import com.example.gearhubmobile.data.models.CreateResponseRequest
+import com.example.gearhubmobile.data.models.ResponseDTO
+import com.example.gearhubmobile.data.models.UpdateResponseRequest
+import retrofit2.Response
+
+/**
+ * @author Rodrigo
+ * @date 29 mayo, 2025
+ */
+class ResponseRepository(private val api: ResponseApi) {
+
+    suspend fun getResponseById(id: String): ResponseDTO {
+        return api.getResponseById(id)
+    }
+
+    suspend fun getResponsesByThread(id: String): List<ResponseDTO> {
+        return api.getResponsesByThread(id)
+    }
+
+    suspend fun getResponsesByLikes(id: String): List<ResponseDTO> {
+        return api.getResponsesByLikes(id)
+    }
+
+    suspend fun getResponsesByCreator(id: String): List<ResponseDTO> {
+        return api.getResponsesByCreator(id)
+    }
+
+    suspend fun createResponse(
+        content: String,
+        parentId: String,
+        threadId: String,
+    ): Response<Unit> {
+        val responseRequest = CreateResponseRequest(content, parentId, threadId)
+
+        return api.createResponse(responseRequest)
+    }
+
+    suspend fun hasLike(id: String): Boolean {
+        return api.hasLike(id)
+    }
+
+    suspend fun likeResponse(id: String): Response<Unit> {
+        return api.likeResponse(id)
+    }
+
+    suspend fun unlikeResponse(id: String): Response<Unit> {
+        return api.unlikeResponse(id)
+    }
+
+    suspend fun updateResponse(id: String, content: String): Response<Unit> {
+        val responseRequest = UpdateResponseRequest(id, content)
+
+        return api.updateResponse(responseRequest)
+    }
+
+
+}

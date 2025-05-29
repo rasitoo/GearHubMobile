@@ -19,6 +19,19 @@ data class CommunityDto(
     val comName: String,
     val comPicture: String?
 )
+data class CommunityCreateDTO(
+    val id: String,
+    val comName: String?,
+    val comPicture: String?,
+    val comBanner: String?
+)
+data class CommunityUpdateDTO(
+    val id: String,
+    val comName: String?,
+    val comDesc: String?,
+    val comPicture: String?,
+    val comBanner: String?
+)
 
 data class CommunityResponse(
     val data: List<CommunityDto>,

@@ -4,7 +4,6 @@ package com.example.gearhubmobile.data.apirest
  * @author Rodrigo
  * @date 28 mayo, 2025
  */
-import com.example.gearhubmobile.data.models.FollowRequest
 import com.example.gearhubmobile.data.models.User
 import retrofit2.Response
 import retrofit2.http.*
@@ -24,7 +23,7 @@ interface FollowsApi {
     ): Boolean
 
     @POST("api/Follows/StartFollowing")
-    suspend fun startFollowing(@Body request: FollowRequest) : Response<Unit>
+    suspend fun startFollowing(@Body request: String) : Response<Unit>
 
     @GET("api/Follows/followers/{userId}")
     suspend fun getFollowers(@Path("userId") userId: String): List<User>

@@ -10,7 +10,7 @@ data class Review(
     val rating: Int,
     val comment: String,
     val userId: String,
-    val response: Response
+    val response: ResponseDTO
     )
 
 data class CreateReviewRequest(
