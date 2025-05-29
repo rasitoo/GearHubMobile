@@ -5,8 +5,11 @@ package com.example.gearhubmobile.data.apirest
  * @date 21 mayo, 2025
  */
 import com.example.gearhubmobile.data.models.Community
+import com.example.gearhubmobile.data.models.CommunityCreateDTO
 import com.example.gearhubmobile.data.models.CommunityResponse
+import com.example.gearhubmobile.data.models.CommunityUpdateDTO
 import retrofit2.http.*
+import retrofit2.Response
 
 interface CommunityApi {
 
@@ -20,22 +23,22 @@ interface CommunityApi {
     suspend fun getSubscribedCommunities(): List<Community>
 
     @POST("api/Community")
-    suspend fun createCommunity(@Body community: Community): Unit
+    suspend fun createCommunity(@Body community: CommunityCreateDTO) : Response<Unit>
 
     @PUT("api/Community")
-    suspend fun updateCommunity(@Body community: Community): Unit
+    suspend fun updateCommunity(@Body community: CommunityUpdateDTO) : Response<Unit>
 
     @GET("api/Community/{id}")
     suspend fun getCommunityById(@Path("id") id: String): Community
 
     @DELETE("api/Community/{id}")
-    suspend fun deleteCommunity(@Path("id") id: String): Unit
+    suspend fun deleteCommunity(@Path("id") id: String): Response<Unit>
 
     @POST("api/Community/SubscribeToCommunity/{comid}")
-    suspend fun subscribeToCommunity(@Path("comid") communityId: String): Unit
+    suspend fun subscribeToCommunity(@Path("comid") communityId: String): Response<Unit>
 
     @DELETE("api/Community/UnsubscribeToCommunity/{comid}")
-    suspend fun unsubscribeFromCommunity(@Path("comid") communityId: String): Unit
+    suspend fun unsubscribeFromCommunity(@Path("comid") communityId: String): Response<Unit>
 
     @GET("api/Community/HasSubscription/{communityId}")
     suspend fun hasSubscription(@Path("communityId") communityId: String): Boolean

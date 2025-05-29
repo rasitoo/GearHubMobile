@@ -10,12 +10,13 @@ import com.example.gearhubmobile.data.models.Review
 import com.example.gearhubmobile.data.models.ReviewResponseDto
 import com.example.gearhubmobile.data.models.UpdateReviewRequest
 import com.example.gearhubmobile.data.models.UpdateReviewResponseRequest
+import retrofit2.Response
 import retrofit2.http.*
 
 interface ReviewApi {
 
     @POST("api/Reviews")
-    suspend fun createReview(@Body request: CreateReviewRequest)
+    suspend fun createReview(@Body request: CreateReviewRequest) : Response<Unit>
 
     @GET("api/Reviews/CountReviews/{workshopId}")
     suspend fun countReviews(@Path("workshopId") workshopId: String): Int
@@ -36,19 +37,19 @@ interface ReviewApi {
     suspend fun getReviewsByWorkshop(@Path("workshopId") workshopId: String): List<Review>
 
     @PUT("api/Reviews/ReviewUpdate")
-    suspend fun updateReview(@Body request: UpdateReviewRequest)
+    suspend fun updateReview(@Body request: UpdateReviewRequest) : Response<Unit>
 
     @DELETE("api/Reviews/{id}")
-    suspend fun deleteReview(@Path("id") id: String)
+    suspend fun deleteReview(@Path("id") id: String) : Response<Unit>
     @POST("api/Response/CreateResponse")
-    suspend fun createResponse(@Body request: CreateReviewResponseRequest)
+    suspend fun createResponse(@Body request: CreateReviewResponseRequest) : Response<Unit>
 
     @DELETE("api/Response/DeleteResponse/{responseId}")
-    suspend fun deleteResponse(@Path("responseId") responseId: String)
+    suspend fun deleteResponse(@Path("responseId") responseId: String) : Response<Unit>
 
     @GET("api/Response/GetResponseById/{id}")
     suspend fun getResponseById(@Path("id") id: String): ReviewResponseDto
 
     @PUT("api/Response/UpdateResponse")
-    suspend fun updateResponse(@Body request: UpdateReviewResponseRequest)
+    suspend fun updateResponse(@Body request: UpdateReviewResponseRequest) : Response<Unit>
 }

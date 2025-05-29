@@ -7,15 +7,16 @@ package com.example.gearhubmobile.data.apirest
 import com.example.gearhubmobile.data.models.User
 import com.example.gearhubmobile.data.models.UserProfileCreateRequest
 import com.example.gearhubmobile.data.models.UserProfileUpdateRequest
+import retrofit2.Response
 import retrofit2.http.*
 
 interface ProfileApi {
 
     @POST("api/UserProfile/UserCreate")
-    suspend fun createUserProfile(@Body profile: UserProfileCreateRequest)
+    suspend fun createUserProfile(@Body profile: UserProfileCreateRequest) : Response<Unit>
 
     @PATCH("api/UserProfile/UserUpdate")
-    suspend fun updateUserProfile(@Body profile: UserProfileUpdateRequest)
+    suspend fun updateUserProfile(@Body profile: UserProfileUpdateRequest) : Response<Unit>
 
     @GET("api/UserProfile/Users")
     suspend fun getAllUsers(): List<User>

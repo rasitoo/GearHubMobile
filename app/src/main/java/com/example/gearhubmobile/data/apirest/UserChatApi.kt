@@ -3,6 +3,7 @@ package com.example.gearhubmobile.data.apirest
 import com.example.gearhubmobile.data.models.CreateUserChatRequest
 import com.example.gearhubmobile.data.models.DeleteUserChatRequest
 import com.example.gearhubmobile.data.models.UserChatDto
+import retrofit2.Response
 import retrofit2.http.*
 
 /**
@@ -16,8 +17,8 @@ interface UserChatApi {
     suspend fun getUserChats(): List<UserChatDto>
 
     @POST("api/UserChat")
-    suspend fun createUserChat(@Body request: CreateUserChatRequest)
+    suspend fun createUserChat(@Body request: CreateUserChatRequest) : Response<Unit>
 
     @DELETE("api/UserChat")
-    suspend fun deleteUserChat(@Body request: DeleteUserChatRequest)
+    suspend fun deleteUserChat(@Body request: DeleteUserChatRequest) : Response<Unit>
 }
