@@ -15,7 +15,7 @@ class ChatRepository(private val api: ChatApi) {
         return api.getChats()
     }
 
-    suspend fun getChats(id: String): Chat {
+    suspend fun getChatById(id: String): Chat {
         return api.getChatById(id)
     }
 
