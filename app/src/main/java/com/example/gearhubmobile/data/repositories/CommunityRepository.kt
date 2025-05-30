@@ -6,12 +6,13 @@ import com.example.gearhubmobile.data.models.CommunityCreateDTO
 import com.example.gearhubmobile.data.models.CommunityDto
 import com.example.gearhubmobile.data.models.CommunityUpdateDTO
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
-class CommunityRepository(private val api: CommunityApi) {
+class CommunityRepository @Inject constructor(private val api: CommunityApi) {
 
     suspend fun getAllCommunities(): List<CommunityDto> {
         return api.getAllCommunities().data

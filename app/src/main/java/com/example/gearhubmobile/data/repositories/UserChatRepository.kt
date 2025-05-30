@@ -1,18 +1,17 @@
 package com.example.gearhubmobile.data.repositories
 
 import com.example.gearhubmobile.data.apirest.UserChatApi
-import com.example.gearhubmobile.data.models.CreateThreadRequest
 import com.example.gearhubmobile.data.models.CreateUserChatRequest
 import com.example.gearhubmobile.data.models.DeleteUserChatRequest
-import com.example.gearhubmobile.data.models.UpdateThreadRequest
 import com.example.gearhubmobile.data.models.UserChatDto
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 29 mayo, 2025
  */
-class UserChatRepository(private val api: UserChatApi) {
+class UserChatRepository @Inject constructor(private val api: UserChatApi) {
 
     suspend fun getUserChats(threadId: String): List<UserChatDto> {
         return api.getUserChats()

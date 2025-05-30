@@ -5,12 +5,13 @@ import com.example.gearhubmobile.data.models.AssignRoleRequest
 import com.example.gearhubmobile.data.models.RemoveRoleRequest
 import com.example.gearhubmobile.data.models.RoleDto
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 29 mayo, 2025
  */
-class RolesRepository(private val api: RolesApi) {
+class RolesRepository @Inject constructor(private val api: RolesApi) {
 
     suspend fun assignRole(id: String, roleId: String, communityId: String): Response<Unit> {
         val roleRequest = AssignRoleRequest(id, roleId, communityId)

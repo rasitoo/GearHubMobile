@@ -8,14 +8,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.repositories.AuthRepository
 import com.example.gearhubmobile.utils.SessionManager
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 25 mayo, 2025
  */
-class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
+@HiltViewModel
+class AuthViewModel @Inject constructor(private val repository: AuthRepository, internal val sessionManager: SessionManager
+) : ViewModel() {
+
+    val token = sessionManager.token
 
     var loginSuccess by mutableStateOf<Boolean?>(null)
 
@@ -33,16 +39,5 @@ class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
         viewModelScope.launch {
             repository.register(email, password, name)
         }
-    }
-}
-
-class AuthViewModelFactory(
-    private val repository: AuthRepository
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
-            return AuthViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

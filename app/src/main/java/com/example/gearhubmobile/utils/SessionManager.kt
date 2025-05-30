@@ -3,8 +3,14 @@ package com.example.gearhubmobile.utils
 import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Singleton
 
 class SessionManager(private val context: Context) {
 
@@ -25,5 +31,15 @@ class SessionManager(private val context: Context) {
         context.dataStore.edit { prefs ->
             prefs.remove(JWT_TOKEN)
         }
+    }
+}
+@Module
+@InstallIn(SingletonComponent::class)
+object SessionModule {
+
+    @Provides
+    @Singleton
+    fun provideSessionManager(@ApplicationContext context: Context): SessionManager {
+        return SessionManager(context)
     }
 }

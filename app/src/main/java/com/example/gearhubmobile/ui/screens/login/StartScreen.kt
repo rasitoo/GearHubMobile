@@ -12,21 +12,20 @@ import androidx.navigation.NavHostController
 import com.example.gearhubmobile.ui.screens.InitScreen
 import com.example.gearhubmobile.utils.SessionManager
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.gearhubmobile.ui.screens.Screen
 
 /**
  * @author Rodrigo
  * @date 25 mayo, 2025
  */
 @Composable
-fun StartScreen(
-    sessionManager: SessionManager,
-    navController: NavHostController
-) {
-    val token by sessionManager.token.collectAsState(initial = null)
+fun StartScreen(navController: NavHostController, viewModel: AuthViewModel = hiltViewModel()) {
+    val token by viewModel.token.collectAsState(initial = null)
 
     LaunchedEffect(token) {
         if (token != null) {
-            navController.navigate(InitScreen.Home.route) {
+            navController.navigate(Screen.Home.route) {
                 popUpTo(InitScreen.Start.route) { inclusive = true }
             }
         } else {
@@ -36,11 +35,7 @@ fun StartScreen(
         }
     }
 
-    // Muestra un loader mientras decide
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         CircularProgressIndicator()
     }
 }

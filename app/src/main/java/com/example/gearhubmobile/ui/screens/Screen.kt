@@ -16,4 +16,11 @@ sealed class Screen(val route: String, val icon: ImageVector?, val label: String
     object Communities : Screen("communities", Icons.Default.Person, "Comunidades")
     object Post : Screen("post", Icons.Default.AddCircle, "Publicar")
     object Chats : Screen("chats", Icons.Default.Email, "Chats")
+    object ChatDetail : Screen("chatDetail", null, null) {
+        fun createRoute(itemId: String) = "chatDetail/$itemId"
+    }
+
+    object CommunityDetail : Screen("communityDetail", null, null) {
+        fun createRoute(itemId: String) = "communityDetail/$itemId"
+    }
 }

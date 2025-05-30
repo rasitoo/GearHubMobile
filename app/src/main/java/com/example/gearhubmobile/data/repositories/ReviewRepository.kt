@@ -8,12 +8,13 @@ import com.example.gearhubmobile.data.models.ReviewResponseDto
 import com.example.gearhubmobile.data.models.UpdateReviewRequest
 import com.example.gearhubmobile.data.models.UpdateReviewResponseRequest
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
-class ReviewRepository(private val api: ReviewApi) {
+class ReviewRepository @Inject constructor(private val api: ReviewApi) {
 
     suspend fun getResponseById(id: String): ReviewResponseDto {
         return api.getResponseById(id)

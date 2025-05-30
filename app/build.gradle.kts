@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -83,6 +86,11 @@ dependencies {
     // optional - RxJava3 support
     implementation("androidx.datastore:datastore-preferences-rxjava3:1.1.7")
 
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-compiler:2.48")
+
+    // Jetpack Compose Hilt integration
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
 
 }

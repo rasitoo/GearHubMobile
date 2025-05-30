@@ -6,13 +6,14 @@ import com.example.gearhubmobile.utils.SessionManager
 import com.example.gearhubmobile.data.models.LoginRequest
 import com.example.gearhubmobile.data.models.RegisterRequest
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
 
-class AuthRepository(private val api: AuthApi, private val sessionManager: SessionManager) {
+class AuthRepository @Inject constructor(private val api: AuthApi, private val sessionManager: SessionManager) {
 
     suspend fun login(email: String, password: String): Boolean {
         return try {

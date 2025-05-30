@@ -4,12 +4,13 @@ import com.example.gearhubmobile.data.apirest.ThreadApi
 import com.example.gearhubmobile.data.models.CreateThreadRequest
 import com.example.gearhubmobile.data.models.UpdateThreadRequest
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 29 mayo, 2025
  */
-class ThreadRepository(private val api: ThreadApi) {
+class ThreadRepository @Inject constructor(private val api: ThreadApi) {
 
     suspend fun getThreadById(threadId: String): Thread {
         return api.getThreadById(threadId)

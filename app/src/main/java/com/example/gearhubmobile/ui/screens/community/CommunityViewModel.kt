@@ -5,15 +5,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gearhubmobile.data.apirest.RetrofitInstance.communityApi
 import com.example.gearhubmobile.data.models.CommunityDto
+import com.example.gearhubmobile.data.repositories.CommunityRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
-class CommunityViewModel : ViewModel() {
+@HiltViewModel
+class CommunityViewModel @Inject constructor(
+    private val repository: CommunityRepository
+) : ViewModel() {
     var communities by mutableStateOf<List<CommunityDto>>(emptyList())
     var isLoading by mutableStateOf(false)
 
@@ -21,10 +26,8 @@ class CommunityViewModel : ViewModel() {
         viewModelScope.launch {
             isLoading = true
             try {
-                val response = communityApi.getAllCommunities()
-                communities = response.data
+                communities = repository.getAllCommunities()
             } catch (e: Exception) {
-                // Manejo de error
             } finally {
                 isLoading = false
             }

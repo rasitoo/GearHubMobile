@@ -5,12 +5,13 @@ import com.example.gearhubmobile.data.models.CreateResponseRequest
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.data.models.UpdateResponseRequest
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 29 mayo, 2025
  */
-class ResponseRepository(private val api: ResponseApi) {
+class ResponseRepository @Inject constructor(private val api: ResponseApi) {
 
     suspend fun getResponseById(id: String): ResponseDTO {
         return api.getResponseById(id)

@@ -5,12 +5,13 @@ import com.example.gearhubmobile.data.models.Chat
 import com.example.gearhubmobile.data.models.CreateChatRequest
 import com.example.gearhubmobile.data.models.UpdateChatRequest
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
-class ChatRepository(private val api: ChatApi) {
+class ChatRepository @Inject constructor(private val api: ChatApi) {
     suspend fun getChats(): List<Chat> {
         return api.getChats()
     }

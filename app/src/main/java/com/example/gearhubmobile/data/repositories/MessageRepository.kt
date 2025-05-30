@@ -5,12 +5,13 @@ import com.example.gearhubmobile.data.models.CreateMessageRequest
 import com.example.gearhubmobile.data.models.Message
 import com.example.gearhubmobile.data.models.UpdateMessageRequest
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 29 mayo, 2025
  */
-class MessageRepository(private val api: MessageApi) {
+class MessageRepository @Inject constructor(private val api: MessageApi) {
 
     suspend fun getMessages(): List<Message> {
         return api.getMessages()

@@ -5,12 +5,13 @@ import com.example.gearhubmobile.data.models.User
 import com.example.gearhubmobile.data.models.UserProfileCreateRequest
 import com.example.gearhubmobile.data.models.UserProfileUpdateRequest
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
-class ProfileRepository(private val api: ProfileApi) {
+class ProfileRepository @Inject constructor(private val api: ProfileApi) {
 
     suspend fun getAllUsers(): List<User> {
         return api.getAllUsers()

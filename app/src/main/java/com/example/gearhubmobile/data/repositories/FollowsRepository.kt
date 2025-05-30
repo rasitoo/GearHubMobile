@@ -3,12 +3,13 @@ package com.example.gearhubmobile.data.repositories
 import com.example.gearhubmobile.data.apirest.FollowsApi
 import com.example.gearhubmobile.data.models.User
 import retrofit2.Response
+import javax.inject.Inject
 
 /**
  * @author Rodrigo
  * @date 29 mayo, 2025
  */
-class FollowsRepository(private val api: FollowsApi) {
+class FollowsRepository @Inject constructor(private val api: FollowsApi) {
 
     suspend fun getFollowers(id: String): List<User> {
         return api.getFollowers(id)

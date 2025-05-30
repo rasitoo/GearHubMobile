@@ -4,10 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,36 +25,37 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.gearhubmobile.ui.screens.InitScreen
 import com.example.gearhubmobile.ui.screens.Screen
+import com.example.gearhubmobile.ui.screens.chat.ChatListScreen
 import com.example.gearhubmobile.ui.screens.community.CommunityList
 import com.example.gearhubmobile.ui.screens.community.CommunityViewModel
 import com.example.gearhubmobile.ui.screens.home.HomeScreen
 import com.example.gearhubmobile.ui.screens.home.PlaceholderScreen
-import com.example.gearhubmobile.ui.theme.GearHubMobileTheme
-import kotlinx.coroutines.launch
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.*
-import com.example.gearhubmobile.data.apirest.RetrofitInstance
-import com.example.gearhubmobile.data.repositories.AuthRepository
-import com.example.gearhubmobile.ui.screens.InitScreen
 import com.example.gearhubmobile.ui.screens.login.AuthViewModel
-import com.example.gearhubmobile.ui.screens.login.AuthViewModelFactory
 import com.example.gearhubmobile.ui.screens.login.LoginScreen
+import com.example.gearhubmobile.ui.theme.GearHubMobileTheme
 import com.example.gearhubmobile.utils.SessionManager
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,31 +63,30 @@ class MainActivity : ComponentActivity() {
         setContent {
             GearHubMobileTheme {
                 val navController = rememberNavController()
-                val context = LocalContext.current
-                val sessionManager = remember { SessionManager(context) }
-
-                AppNavHost(navController = navController, sessionManager = sessionManager)
+                AppNavHost(navController = navController)
             }
         }
     }
 }
 
 @Composable
-fun AppNavHost(navController: NavHostController, sessionManager: SessionManager) {
+fun AppNavHost(navController: NavHostController) {
     NavHost(navController = navController, startDestination = InitScreen.Start.route) {
+
         composable(InitScreen.Start.route) {
+            val sessionManager: SessionManager = hiltViewModel<AuthViewModel>().sessionManager
             StartScreen(sessionManager, navController)
         }
+
         composable(InitScreen.Login.route) {
-            val repository = remember { AuthRepository(RetrofitInstance.authApi, sessionManager) }
-            val factory = remember { AuthViewModelFactory(repository) }
-            val viewModel: AuthViewModel = viewModel(factory = factory)
-            LoginScreen(viewModel = viewModel) {
+            val authViewModel: AuthViewModel = hiltViewModel()
+            LoginScreen(viewModel = authViewModel) {
                 navController.navigate(Screen.Home.route) {
                     popUpTo(InitScreen.Login.route) { inclusive = true }
                 }
             }
         }
+
         composable(Screen.Home.route) {
             MainScreen(navController = navController)
         }
@@ -115,7 +118,7 @@ fun StartScreen(sessionManager: SessionManager, navController: NavHostController
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavHostController) {
-    val communityViewModel: CommunityViewModel = viewModel()
+    val communityViewModel: CommunityViewModel = hiltViewModel()
 
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -138,8 +141,9 @@ fun MainScreen(navController: NavHostController) {
                 Text("Recomendadas", modifier = Modifier.padding(16.dp))
                 CommunityList(
                     viewModel = communityViewModel,
-                    onCommunityClick = { navController.navigate(Screen.Communities.route) }
-                )
+                    onCommunityClick = { community ->
+                        navController.navigate(Screen.CommunityDetail.createRoute(community.id))
+                    })
             }
         }
     ) {
@@ -156,7 +160,7 @@ fun MainScreen(navController: NavHostController) {
                     },
                     actions = {
                         IconButton(onClick = {
-                            // Aquí podrías simular un drawer derecho como un `ModalBottomSheet` o `Dialog`
+                            // Drawer derecho o navegacion a perfilApi
                         }) {
                             Icon(Icons.Default.AccountCircle, contentDescription = "Perfil")
                         }
@@ -174,7 +178,14 @@ fun MainScreen(navController: NavHostController) {
                                     launchSingleTop = true
                                 }
                             },
-                            icon = { screen.icon?.let { Icon(it, contentDescription = screen.label ?: "") } },
+                            icon = {
+                                screen.icon?.let {
+                                    Icon(
+                                        it,
+                                        contentDescription = screen.label ?: ""
+                                    )
+                                }
+                            },
                             label = { Text(screen.label ?: "") }
                         )
                     }
@@ -189,7 +200,7 @@ fun MainScreen(navController: NavHostController) {
                 composable(Screen.Home.route) { HomeScreen() }
                 composable(Screen.Communities.route) { PlaceholderScreen("Comunidades") }
                 composable(Screen.Post.route) { PlaceholderScreen("Publicar") }
-                composable(Screen.Chats.route) { PlaceholderScreen("Chats") }
+                composable(Screen.Chats.route) { ChatListScreen(navController) }
             }
         }
     }
