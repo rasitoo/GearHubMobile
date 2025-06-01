@@ -21,6 +21,7 @@ class CommunityViewModel @Inject constructor(
 ) : ViewModel() {
     var communities by mutableStateOf<List<CommunityDto>>(emptyList())
     var isLoading by mutableStateOf(false)
+    var errorMessage by mutableStateOf<String?>(null)
 
     fun loadCommunities() {
         viewModelScope.launch {
@@ -28,6 +29,7 @@ class CommunityViewModel @Inject constructor(
             try {
                 communities = repository.getAllCommunities()
             } catch (e: Exception) {
+                errorMessage = e.message
             } finally {
                 isLoading = false
             }

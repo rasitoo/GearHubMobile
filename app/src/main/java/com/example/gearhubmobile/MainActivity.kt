@@ -1,6 +1,7 @@
 package com.example.gearhubmobile
 
 import android.os.Bundle
+import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -28,14 +29,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -52,8 +50,8 @@ import com.example.gearhubmobile.ui.screens.login.LoginScreen
 import com.example.gearhubmobile.ui.theme.GearHubMobileTheme
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -88,9 +86,20 @@ fun AppNavHost(navController: NavHostController) {
         }
 
         composable(Screen.Home.route) {
-            MainScreen(navController = navController)
+            MainScreen()
         }
     }
+}
+
+fun isTokenExpired(token: String?): Boolean {
+    if (token.isNullOrBlank()) return true
+    val parts = token.split(".")
+    if (parts.size < 2) return true
+    val payload = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
+    val json = JSONObject(payload)
+    val exp = json.optLong("exp", 0L)
+    val now = System.currentTimeMillis() / 1000
+    return exp < now
 }
 
 @Composable
@@ -98,7 +107,7 @@ fun StartScreen(sessionManager: SessionManager, navController: NavHostController
     val token by sessionManager.token.collectAsState(initial = null)
 
     LaunchedEffect(token) {
-        if (token != null) {
+        if (!token.isNullOrBlank() && !isTokenExpired(token)) {
             navController.navigate(Screen.Home.route) {
                 popUpTo(InitScreen.Start.route) { inclusive = true }
             }
@@ -114,10 +123,9 @@ fun StartScreen(sessionManager: SessionManager, navController: NavHostController
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen() {
     val communityViewModel: CommunityViewModel = hiltViewModel()
 
     val navController = rememberNavController()
@@ -200,7 +208,11 @@ fun MainScreen(navController: NavHostController) {
                 composable(Screen.Home.route) { HomeScreen() }
                 composable(Screen.Communities.route) { PlaceholderScreen("Comunidades") }
                 composable(Screen.Post.route) { PlaceholderScreen("Publicar") }
-                composable(Screen.Chats.route) { ChatListScreen(navController) }
+                composable(Screen.Chats.route) {
+                    ChatListScreen(onChatClick = { chatId ->
+                        navController.navigate(Screen.ChatDetail.createRoute(chatId.toString()))
+                    })
+                }
             }
         }
     }

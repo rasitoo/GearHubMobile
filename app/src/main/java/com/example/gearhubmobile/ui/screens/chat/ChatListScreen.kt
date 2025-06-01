@@ -9,17 +9,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.example.gearhubmobile.data.models.Chat
-import com.example.gearhubmobile.ui.screens.Screen
 
 /**
  * @author Rodrigo
@@ -27,7 +29,7 @@ import com.example.gearhubmobile.ui.screens.Screen
  */
 @Composable
 fun ChatListScreen(
-    navController: NavHostController,
+    onChatClick: (Chat) -> Unit,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
     Column(
@@ -37,17 +39,16 @@ fun ChatListScreen(
     ) {
         Text("Chats", style = MaterialTheme.typography.headlineMedium)
         Spacer(Modifier.height(16.dp))
-
+        LaunchedEffect(Unit) {
+            viewModel.loadChats()
+        }
         if (viewModel.isLoading) {
             CircularProgressIndicator()
         } else {
             LazyColumn {
                 items(viewModel.chatList.size) { index ->
                     val chat = viewModel.chatList[index]
-                    ChatItem(chat) {
-                        navController.navigate(Screen.ChatDetail.createRoute(chat.id))
-                    }
-                    Divider()
+                    ChatItem(chat = chat, onClick = { onChatClick(chat) })
                 }
             }
         }
@@ -57,15 +58,21 @@ fun ChatListScreen(
 
 @Composable
 fun ChatItem(chat: Chat, onClick: () -> Unit) {
-    Row(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 12.dp)
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .clickable { onClick() },
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
-        Column {
-            Text(chat.name.toString(), style = MaterialTheme.typography.titleMedium)
-            //Text(chat.lastMessage, style = MaterialTheme.typography.bodySmall)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Text(
+                text = chat.name.toString(),
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 }

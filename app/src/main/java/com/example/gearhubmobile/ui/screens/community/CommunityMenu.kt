@@ -19,6 +19,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.gearhubmobile.data.models.CommunityDto
 
@@ -47,7 +48,7 @@ fun AllCommunities(viewModel: CommunityViewModel = viewModel()) {
 
 @Composable
 fun CommunityList(
-    viewModel: CommunityViewModel = viewModel(),
+    viewModel: CommunityViewModel = hiltViewModel(),
     onCommunityClick: (CommunityDto) -> Unit
 ) {
     LaunchedEffect(Unit) {

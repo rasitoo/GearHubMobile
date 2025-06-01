@@ -11,7 +11,7 @@ data class Chat(
     val id: String,
     val creatorId: String,
     val name: String?,
-    val createdAt: LocalDateTime?
+    val createdAt: String?
 )
 
 data class CreateChatRequest(

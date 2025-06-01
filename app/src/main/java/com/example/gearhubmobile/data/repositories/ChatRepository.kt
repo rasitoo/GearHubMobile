@@ -12,6 +12,7 @@ import javax.inject.Inject
  * @date 21 mayo, 2025
  */
 class ChatRepository @Inject constructor(private val api: ChatApi) {
+
     suspend fun getChats(): List<Chat> {
         return api.getChats()
     }

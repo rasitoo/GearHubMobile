@@ -19,17 +19,8 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(private val repository: ChatRepository) : ViewModel() {
 
     var chatList by mutableStateOf<List<Chat>>(emptyList())
-        private set
-
-    var isLoading by mutableStateOf(true)
-        private set
-
+    var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
-        private set
-
-    init {
-        loadChats()
-    }
 
     fun loadChats() {
         viewModelScope.launch {
