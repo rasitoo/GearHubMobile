@@ -37,6 +37,15 @@ class MessageRepository @Inject constructor(private val api: MessageApi) {
         return api.getMessages()
     }
 
+    suspend fun getMessagesFiltered(
+        chatId: Int? = null,
+        senderId: Int? = null,
+        startDate: String? = null,
+        endDate: String? = null
+    ): List<Message> {
+        return api.getMessages(chatId, senderId, startDate, endDate)
+    }
+
     suspend fun getMessageById(id: String): Message {
         return api.getMessageById(id)
     }

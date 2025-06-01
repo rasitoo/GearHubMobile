@@ -1,5 +1,6 @@
 package com.example.gearhubmobile.ui.screens.login
 
+import android.util.Base64
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,7 +11,11 @@ import com.example.gearhubmobile.data.repositories.AuthRepository
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import javax.inject.Inject
 
 /**
@@ -22,6 +27,8 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository, 
 ) : ViewModel() {
 
     val token = sessionManager.token
+
+    val isExpired = sessionManager.token.map { isTokenExpired(it) }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
     var loginSuccess by mutableStateOf<Boolean?>(null)
 
@@ -39,5 +46,15 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository, 
         viewModelScope.launch {
             repository.register(email, password, name)
         }
+    }
+    fun isTokenExpired(token: String?): Boolean {
+        if (token.isNullOrBlank()) return true
+        val parts = token.split(".")
+        if (parts.size < 2) return true
+        val payload = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
+        val json = JSONObject(payload)
+        val exp = json.optLong("exp", 0L)
+        val now = System.currentTimeMillis() / 1000
+        return exp < now
     }
 }

@@ -29,7 +29,7 @@ import com.example.gearhubmobile.data.models.Chat
  */
 @Composable
 fun ChatListScreen(
-    onChatClick: (Chat) -> Unit,
+    onChatClick: (String) -> Unit,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
     Column(
@@ -48,7 +48,7 @@ fun ChatListScreen(
             LazyColumn {
                 items(viewModel.chatList.size) { index ->
                     val chat = viewModel.chatList[index]
-                    ChatItem(chat = chat, onClick = { onChatClick(chat) })
+                    ChatItem(chat = chat, onClick = { onChatClick(chat.id.toString()) })
                 }
             }
         }
@@ -57,12 +57,12 @@ fun ChatListScreen(
 
 
 @Composable
-fun ChatItem(chat: Chat, onClick: () -> Unit) {
+fun ChatItem(chat: Chat, onClick: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
-            .clickable { onClick() },
+            .clickable { onClick(chat.id.toString()) },
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Row(

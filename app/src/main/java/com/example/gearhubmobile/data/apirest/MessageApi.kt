@@ -16,14 +16,22 @@ interface MessageApi {
     suspend fun getMessageById(@Path("id") id: String): Message
 
     @PUT("api/Messages/{id}")
-    suspend fun updateMessage(@Path("id") id: String, @Body request: UpdateMessageRequest) : Response<Unit>
+    suspend fun updateMessage(
+        @Path("id") id: String,
+        @Body request: UpdateMessageRequest
+    ): Response<Unit>
 
     @DELETE("api/Messages/{id}")
-    suspend fun deleteMessage(@Path("id") id: String) : Response<Unit>
+    suspend fun deleteMessage(@Path("id") id: String): Response<Unit>
 
     @GET("api/messages")
-    suspend fun getMessages(): List<Message>
+    suspend fun getMessages(
+        @Query("chatId") chatId: Int? = null,
+        @Query("senderId") senderId: Int? = null,
+        @Query("startDate") startDate: String? = null,
+        @Query("endDate") endDate: String? = null,
+    ): List<Message>
 
     @POST("api/messages")
-    suspend fun createMessage(@Body request: CreateMessageRequest) : Response<Unit>
+    suspend fun createMessage(@Body request: CreateMessageRequest): Response<Unit>
 }

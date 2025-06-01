@@ -30,12 +30,12 @@ class MessageViewModel @Inject constructor(private val repository: MessageReposi
 
     val currentUserId = sessionManager.token.map { extractUserIdFromToken(it) }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
-    fun connectToChat(chatId: String) {
+    fun connectToChat(chatId: Int) {
         viewModelScope.launch {
-            val history = repository.getMessageById(chatId)
-            _messages.value = listOf(history)
+            val history = repository.getMessagesFiltered(chatId = chatId)
+            _messages.value = history
 
-            repository.connect(chatId) { newMessage ->
+            repository.connect(chatId.toString()) { newMessage ->
                 _messages.update { it + newMessage }
             }
         }
@@ -60,6 +60,6 @@ class MessageViewModel @Inject constructor(private val repository: MessageReposi
         if (parts.size < 2) return ""
         val payload = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
         val json = JSONObject(payload)
-        return json.optString("userId", "")
+        return json.optString("nameid", "")
     }
 }

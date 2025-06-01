@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.gearhubmobile.data.models.Message
 import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * @author Rodrigo
@@ -31,13 +32,13 @@ import androidx.compose.runtime.LaunchedEffect
 @Composable
 fun ChatDetailScreen(
     chatId: String,
-    viewModel: MessageViewModel
+    viewModel: MessageViewModel = hiltViewModel()
 ) {
     val messages by viewModel.messages.collectAsState()
     val currentUserId by viewModel.currentUserId.collectAsState()
 
     LaunchedEffect(chatId) {
-        viewModel.connectToChat(chatId)
+        viewModel.connectToChat(chatId.toInt())
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {

@@ -35,9 +35,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.gearhubmobile.ui.screens.InitScreen
 import com.example.gearhubmobile.ui.screens.Screen
 import com.example.gearhubmobile.ui.screens.chat.ChatListScreen
@@ -47,6 +49,8 @@ import com.example.gearhubmobile.ui.screens.home.HomeScreen
 import com.example.gearhubmobile.ui.screens.home.PlaceholderScreen
 import com.example.gearhubmobile.ui.screens.login.AuthViewModel
 import com.example.gearhubmobile.ui.screens.login.LoginScreen
+import com.example.gearhubmobile.ui.screens.message.ChatDetailScreen
+import com.example.gearhubmobile.ui.screens.message.MessageViewModel
 import com.example.gearhubmobile.ui.theme.GearHubMobileTheme
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -91,23 +95,13 @@ fun AppNavHost(navController: NavHostController) {
     }
 }
 
-fun isTokenExpired(token: String?): Boolean {
-    if (token.isNullOrBlank()) return true
-    val parts = token.split(".")
-    if (parts.size < 2) return true
-    val payload = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
-    val json = JSONObject(payload)
-    val exp = json.optLong("exp", 0L)
-    val now = System.currentTimeMillis() / 1000
-    return exp < now
-}
-
 @Composable
-fun StartScreen(sessionManager: SessionManager, navController: NavHostController) {
+fun StartScreen(sessionManager: SessionManager, navController: NavHostController, viewModel: AuthViewModel = hiltViewModel()
+) {
     val token by sessionManager.token.collectAsState(initial = null)
 
     LaunchedEffect(token) {
-        if (!token.isNullOrBlank() && !isTokenExpired(token)) {
+        if (!token.isNullOrBlank() && !viewModel.isTokenExpired(token)) {
             navController.navigate(Screen.Home.route) {
                 popUpTo(InitScreen.Start.route) { inclusive = true }
             }
@@ -212,6 +206,13 @@ fun MainScreen() {
                     ChatListScreen(onChatClick = { chatId ->
                         navController.navigate(Screen.ChatDetail.createRoute(chatId.toString()))
                     })
+                }
+                composable(
+                    route = Screen.ChatDetail.route,
+                    arguments = listOf(navArgument("chatId") { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val chatId = backStackEntry.arguments?.getString("chatId") ?: return@composable
+                    ChatDetailScreen(chatId = chatId)
                 }
             }
         }
