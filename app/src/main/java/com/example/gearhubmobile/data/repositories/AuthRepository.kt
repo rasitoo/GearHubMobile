@@ -13,7 +13,10 @@ import javax.inject.Inject
  * @date 21 mayo, 2025
  */
 
-class AuthRepository @Inject constructor(private val api: AuthApi, private val sessionManager: SessionManager) {
+class AuthRepository @Inject constructor(
+    private val api: AuthApi,
+    private val sessionManager: SessionManager
+) {
 
     suspend fun login(email: String, password: String): Boolean {
         return try {
@@ -33,9 +36,25 @@ class AuthRepository @Inject constructor(private val api: AuthApi, private val s
     }
 
 
-    suspend fun register(email: String, password: String, name: String): Boolean {
+    suspend fun register(
+        name: String,
+        password: String,
+        passwordRepeat: String,
+        email: String,
+        usertype: Int
+    ): Boolean {
         return try {
-            api.register(RegisterRequest(email, password, name))
+            api.register(RegisterRequest(name, password, passwordRepeat, email, usertype))
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+    suspend fun recover(
+        email: String
+    ): Boolean {
+        return try {
+            api.requestChange(email)
             true
         } catch (e: Exception) {
             false

@@ -24,7 +24,7 @@ fun StartScreen(navController: NavHostController, viewModel: AuthViewModel = hil
     val token by viewModel.token.collectAsState(initial = null)
 
     LaunchedEffect(token) {
-        if (token != null) {
+        if (token != null && !viewModel.isTokenExpired(token)) {
             navController.navigate(Screen.Home.route) {
                 popUpTo(InitScreen.Start.route) { inclusive = true }
             }

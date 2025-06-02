@@ -7,6 +7,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 /**
  * @author Rodrigo
@@ -17,7 +18,7 @@ interface AuthApi {
     suspend fun register(@Body user: RegisterRequest): Response<Unit>
 
     @GET("User/RequestChangePassword/{email}")
-    suspend fun requestChange(): Response<Unit>
+    suspend fun requestChange(@Path("email") email: String): Response<Unit>
 
     @POST("User/LogUser")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>

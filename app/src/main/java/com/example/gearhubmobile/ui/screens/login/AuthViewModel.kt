@@ -5,12 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.repositories.AuthRepository
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -28,8 +26,6 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository, 
 
     val token = sessionManager.token
 
-    val isExpired = sessionManager.token.map { isTokenExpired(it) }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
-
     var loginSuccess by mutableStateOf<Boolean?>(null)
 
     var isLoading by mutableStateOf(false)
@@ -42,9 +38,14 @@ class AuthViewModel @Inject constructor(private val repository: AuthRepository, 
         }
     }
 
-    fun register(email: String, password: String, name: String) {
+    fun register(name: String, password: String, passwordRepeat: String,email: String, isWorkshop: Boolean) {
         viewModelScope.launch {
-            repository.register(email, password, name)
+            repository.register(name, password,passwordRepeat, email, if (isWorkshop) 2 else 1)
+        }
+    }
+    fun recover(email: String) {
+        viewModelScope.launch {
+            repository.recover(email)
         }
     }
     fun isTokenExpired(token: String?): Boolean {

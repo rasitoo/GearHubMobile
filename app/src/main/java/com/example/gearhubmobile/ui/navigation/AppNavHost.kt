@@ -18,6 +18,8 @@ import com.example.gearhubmobile.ui.screens.home.HomeScreen
 import com.example.gearhubmobile.ui.screens.home.PlaceholderScreen
 import com.example.gearhubmobile.ui.screens.login.AuthViewModel
 import com.example.gearhubmobile.ui.screens.login.LoginScreen
+import com.example.gearhubmobile.ui.screens.login.RecoverScreen
+import com.example.gearhubmobile.ui.screens.login.RegisterScreen
 import com.example.gearhubmobile.ui.screens.login.StartScreen
 import com.example.gearhubmobile.ui.screens.message.ChatDetailScreen
 
@@ -26,14 +28,13 @@ import com.example.gearhubmobile.ui.screens.message.ChatDetailScreen
  * @date 21 mayo, 2025
  */
 @Composable
-fun AppNavHost(navController: NavHostController) {
+fun AppNavHost(navController: NavHostController,viewModel: AuthViewModel = hiltViewModel()) {
     NavHost(navController = navController, startDestination = InitScreen.Start.route) {
         composable(InitScreen.Start.route) {
             StartScreen(navController)
         }
         composable(InitScreen.Login.route) {
-            val viewModel: AuthViewModel = hiltViewModel()
-            LoginScreen(viewModel = viewModel) {
+            LoginScreen(viewModel = viewModel, navController = navController) {
                 navController.navigate(Screen.Home.route) {
                     popUpTo(InitScreen.Login.route) { inclusive = true }
                 }
@@ -41,6 +42,18 @@ fun AppNavHost(navController: NavHostController) {
         }
         composable(Screen.Home.route) {
             MainScreen()
+        }
+        composable(InitScreen.Register.route){
+            RegisterScreen(
+                viewModel,
+                navController
+            )
+        }
+        composable(InitScreen.Recover.route){
+            RecoverScreen(
+                viewModel,
+                navController
+            )
         }
     }
 }
