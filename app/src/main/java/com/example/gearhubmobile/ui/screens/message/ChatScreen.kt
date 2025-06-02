@@ -1,5 +1,6 @@
 package com.example.gearhubmobile.ui.screens.message
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.example.gearhubmobile.data.models.Message
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 /**
  * @author Rodrigo
@@ -48,7 +50,7 @@ fun ChatDetailScreen(
         ) {
             items(messages.reversed().size) { index ->
                 val message = messages.reversed()[index]
-                MessageBubble(message, currentUserId.toString())
+                MessageBubble(message, currentUserId.toString(), onDelete = {viewModel.deleteMessage(message.id.toString())})
             }
         }
 
@@ -70,8 +72,18 @@ fun ChatDetailScreen(
     }
 }
 @Composable
-fun MessageBubble(message: Message, currentUserId: String) {
+fun MessageBubble(
+    message: Message,
+    currentUserId: String,
+    onEdit: (Message, String) -> Unit = { _, _ -> },
+    onDelete: (Message) -> Unit = {},
+    viewModel: MessageViewModel = hiltViewModel()
+) {
     val isMine = message.senderId == currentUserId
+    var expanded by remember { mutableStateOf(false) }
+    var isEditing by remember { mutableStateOf(false) }
+    var editText by remember { mutableStateOf(message.content ?: "") }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -81,13 +93,63 @@ fun MessageBubble(message: Message, currentUserId: String) {
         Surface(
             color = if (isMine) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
             shape = RoundedCornerShape(8.dp),
-            tonalElevation = 2.dp
+            tonalElevation = 2.dp,
+            modifier = if (isMine) Modifier
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = { expanded = true }
+                ) else Modifier
         ) {
-            Text(
-                message.content.toString(),
-                modifier = Modifier.padding(12.dp),
-                color = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-            )
+            if (isEditing) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    OutlinedTextField(
+                        value = editText,
+                        onValueChange = { editText = it },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Row {
+                        Button(onClick = {
+                            isEditing = false
+                            onEdit(message, editText)
+                            viewModel.editMessage(message.id.toString(), editText)
+                        }) {
+                            Text("Guardar")
+                        }
+                        Button(onClick = { isEditing = false }) {
+                            Text("Cancelar")
+                        }
+                    }
+                }
+            } else {
+                Text(
+                    message.content.toString(),
+                    modifier = Modifier.padding(12.dp),
+                    color = if (isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                )
+            }
+            if (isMine) {
+                androidx.compose.material3.DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text("Editar") },
+                        onClick = {
+                            expanded = false
+                            isEditing = true
+                        }
+                    )
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = { Text("Borrar") },
+                        onClick = {
+                            expanded = false
+                            onDelete(message)
+
+                        }
+                    )
+                }
+            }
         }
     }
 }
+

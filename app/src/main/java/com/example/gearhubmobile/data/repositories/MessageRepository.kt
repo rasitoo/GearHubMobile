@@ -16,13 +16,24 @@ import javax.inject.Inject
 class MessageRepository @Inject constructor(private val api: MessageApi) {
     private lateinit var hubConnection: HubConnection
 
-    suspend fun connect(onReceive: (Message) -> Unit) {
+    suspend fun connect(
+        chatId: String,
+        onReceive: (Message) -> Unit,
+        onUpdate: (Message) -> Unit,
+        onDelete: (String) -> Unit
+    ) {
         hubConnection = HubConnectionBuilder.create("http://10.0.2.2:8000/hubs/messages")
             .build()
 
         hubConnection.on("ReceiveMessage", { message -> onReceive(message) }, Message::class.java)
-
+        hubConnection.on("MessageUpdated", { message -> onUpdate(message) }, Message::class.java)
+        hubConnection.on(
+            "MessageDeleted",
+            { id: String -> onDelete(id) },
+            String::class.java
+        )
         hubConnection.start().blockingAwait()
+        hubConnection.send("JoinChat", chatId)
     }
 
     fun disconnect() {

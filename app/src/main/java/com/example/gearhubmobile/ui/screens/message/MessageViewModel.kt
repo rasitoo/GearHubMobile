@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.util.Base64
+import kotlinx.coroutines.flow.drop
 import org.json.JSONObject
 
 @HiltViewModel
@@ -30,20 +31,42 @@ class MessageViewModel @Inject constructor(private val repository: MessageReposi
 
     val currentUserId = sessionManager.token.map { extractUserIdFromToken(it) }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
-    fun connectToChat(chatId: Int) {
-        viewModelScope.launch {
-            val history = repository.getMessagesFiltered(chatId = chatId)
-            _messages.value = history
+fun connectToChat(chatId: Int) {
+    viewModelScope.launch {
+        val history = repository.getMessagesFiltered(chatId = chatId)
+        _messages.value = history
 
-            repository.connect() { newMessage ->
+        repository.connect(chatId.toString(),
+            onReceive = { newMessage ->
                 _messages.update { it + newMessage }
+            },
+            onUpdate = { updatedMessage ->
+                _messages.update { messages ->
+                    messages.map { if (it.id == updatedMessage.id) updatedMessage else it }
+                }
+            },
+            onDelete = { id ->
+                _messages.update { messages: List<Message> ->
+                    messages.filter { it.id != id }
+                }
             }
-        }
+        )
     }
+}
 
     fun sendMessage(chatId: String, content: String) {
         viewModelScope.launch {
             repository.createMessage(content, chatId)
+        }
+    }
+    fun editMessage(messageId: String, content: String) {
+        viewModelScope.launch {
+            repository.updateMessage(messageId, content)
+        }
+    }
+    fun deleteMessage(messageId: String) {
+        viewModelScope.launch {
+            repository.deleteMessage(messageId)
         }
     }
 
@@ -51,8 +74,6 @@ class MessageViewModel @Inject constructor(private val repository: MessageReposi
         super.onCleared()
         repository.disconnect()
     }
-
-
 
     fun extractUserIdFromToken(token: String?): String {
         if (token.isNullOrBlank()) return ""
