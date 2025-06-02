@@ -35,7 +35,7 @@ class MessageViewModel @Inject constructor(private val repository: MessageReposi
             val history = repository.getMessagesFiltered(chatId = chatId)
             _messages.value = history
 
-            repository.connect(chatId.toString()) { newMessage ->
+            repository.connect() { newMessage ->
                 _messages.update { it + newMessage }
             }
         }

@@ -4,7 +4,6 @@ import com.example.gearhubmobile.data.apirest.MessageApi
 import com.example.gearhubmobile.data.models.CreateMessageRequest
 import com.example.gearhubmobile.data.models.Message
 import com.example.gearhubmobile.data.models.UpdateMessageRequest
-import com.microsoft.signalr.Action1
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
 import retrofit2.Response
@@ -17,14 +16,13 @@ import javax.inject.Inject
 class MessageRepository @Inject constructor(private val api: MessageApi) {
     private lateinit var hubConnection: HubConnection
 
-    suspend fun connect(chatId: String, onReceive: (Message) -> Unit) {
+    suspend fun connect(onReceive: (Message) -> Unit) {
         hubConnection = HubConnectionBuilder.create("http://10.0.2.2:8000/hubs/messages")
             .build()
 
         hubConnection.on("ReceiveMessage", { message -> onReceive(message) }, Message::class.java)
 
         hubConnection.start().blockingAwait()
-        hubConnection.send("JoinChat", chatId)
     }
 
     fun disconnect() {
