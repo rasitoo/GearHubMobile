@@ -84,7 +84,7 @@ fun CommunityListItem(
         ) {
             Image(
                 painter = rememberAsyncImagePainter(
-                    ("http://10.0.2.2:8000" + community.comPicture)
+                    ("http://vms.iesluisvives.org:25003/" + community.comPicture)
                 ),
                 contentDescription = "Imagen comunidad",
                 modifier = Modifier

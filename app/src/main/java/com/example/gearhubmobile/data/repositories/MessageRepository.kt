@@ -22,7 +22,7 @@ class MessageRepository @Inject constructor(private val api: MessageApi) {
         onUpdate: (Message) -> Unit,
         onDelete: (String) -> Unit
     ) {
-        hubConnection = HubConnectionBuilder.create("http://10.0.2.2:8000/hubs/messages")
+        hubConnection = HubConnectionBuilder.create("http://vms.iesluisvives.org:25003/hubs/messages")
             .build()
 
         hubConnection.on("ReceiveMessage", { message -> onReceive(message) }, Message::class.java)
