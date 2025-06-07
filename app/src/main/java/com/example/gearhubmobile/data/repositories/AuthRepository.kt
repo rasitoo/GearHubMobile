@@ -65,5 +65,5 @@ class AuthRepository @Inject constructor(
         sessionManager.clearToken()
     }
 
-    fun getTokenFlow(): Flow<String?> = sessionManager.token
+
 }

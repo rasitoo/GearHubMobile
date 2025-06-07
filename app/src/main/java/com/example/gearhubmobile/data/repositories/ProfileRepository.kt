@@ -17,10 +17,6 @@ class ProfileRepository @Inject constructor(private val api: ProfileApi) {
         return api.getAllUsers()
     }
 
-    suspend fun getUserById(id: String): User {
-        return api.getUserById(id)
-    }
-
     suspend fun createUserProfile(
         name: String,
         userName: String,
@@ -47,6 +43,20 @@ class ProfileRepository @Inject constructor(private val api: ProfileApi) {
 
     suspend fun getWorkshopData(): User {
         return api.getWorkshopData()
+    }
+
+    suspend fun getUserById(id: String): Result<User?> {
+        return try {
+            val response = api.getUserById(id)
+            when (response.code()) {
+                200 -> Result.success(response.body())
+                401 -> Result.failure(Exception("UNAUTHORIZED"))
+                404 -> Result.failure(Exception("NOT_FOUND"))
+                else -> Result.failure(Exception("UNKNOWN"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
 }

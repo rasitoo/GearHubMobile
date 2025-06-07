@@ -24,9 +24,22 @@ fun StartScreen(navController: NavHostController, viewModel: AuthViewModel = hil
     val token by viewModel.token.collectAsState(initial = null)
 
     LaunchedEffect(token) {
-        if (token != null && !viewModel.isTokenExpired(token)) {
-            navController.navigate(Screen.Home.route) {
-                popUpTo(InitScreen.Start.route) { inclusive = true }
+        if (token != null) {
+            when (viewModel.checkUserStatus()) {
+                "OK"-> navController.navigate(Screen.Home.route) {
+                    popUpTo(InitScreen.Start.route) { inclusive = true }
+                }
+
+                "NOT_FOUND" -> navController.navigate(InitScreen.CreateUser.route) {
+                    popUpTo(InitScreen.Start.route) { inclusive = true }
+                }
+
+                "UNAUTHORIZED", "UNKNOWN" -> {
+                    viewModel.sessionManager.clearToken()
+                    navController.navigate(InitScreen.Login.route) {
+                        popUpTo(InitScreen.Start.route) { inclusive = true }
+                    }
+                }
             }
         } else {
             navController.navigate(InitScreen.Login.route) {
@@ -39,3 +52,4 @@ fun StartScreen(navController: NavHostController, viewModel: AuthViewModel = hil
         CircularProgressIndicator()
     }
 }
+

@@ -10,4 +10,5 @@ sealed class InitScreen(val route: String) {
     object Home : InitScreen("home")
     object Register : InitScreen("register")
     object Recover : InitScreen("recover")
+    object CreateUser : InitScreen("create_user")
 }

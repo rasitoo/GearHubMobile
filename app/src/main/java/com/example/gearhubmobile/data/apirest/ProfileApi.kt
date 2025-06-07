@@ -22,7 +22,7 @@ interface ProfileApi {
     suspend fun getAllUsers(): List<User>
 
     @GET("api/UserProfile/Users/GetUserById/{userId}")
-    suspend fun getUserById(@Path("userId") userId: String): User
+    suspend fun getUserById(@Path("userId") userId: String): Response<User>
 
     @GET("api/UserProfile/workshop")
     suspend fun getWorkshopData(): User
