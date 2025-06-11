@@ -49,8 +49,7 @@ import com.example.gearhubmobile.ui.screens.Screen
 @Composable
 fun LoginScreen(
     viewModel: AuthViewModel,
-    navController: NavHostController,
-    onLoginSuccess: () -> Unit
+    navController: NavHostController
 ) {
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -61,8 +60,8 @@ fun LoginScreen(
     val result = viewModel.loginResult
 
     LaunchedEffect(result) {
-        if (result?.isSuccess ?: false) {
-            onLoginSuccess()
+        if (result?.isSuccess == true) {
+            navController.navigate(InitScreen.Start.route)
         }
     }
 
@@ -130,7 +129,7 @@ fun LoginScreen(
             }
 
             result?.isSuccess == true -> {
-                onLoginSuccess()
+                navController.navigate(InitScreen.Start.route)
             }
 
             result?.isFailure == true -> {

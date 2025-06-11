@@ -35,13 +35,10 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepository,
     private val userRepository: ProfileRepository,
-    internal val sessionManager: SessionManager
+    private val sessionManager: SessionManager
 ) : ViewModel() {
-
-    val userid = sessionManager.token.map { extractUserIdFromToken(it) }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
-    val token = sessionManager.token
     var name = ""
+    val token = sessionManager.token
 
     var loginResult  by mutableStateOf<Result<LoginResponse>?>(null)
 
@@ -52,6 +49,11 @@ class AuthViewModel @Inject constructor(
             isLoading = true
             loginResult  = repository.login(email, password)
             isLoading = false
+        }
+    }
+    fun clearToken() {
+        viewModelScope.launch {
+            sessionManager.clearToken()
         }
     }
 
@@ -73,19 +75,9 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun extractUserIdFromToken(token: String?): String {
-        if (token.isNullOrBlank()) return ""
-        Log.d("erase", token)
-        val parts = token.split(".")
-        if (parts.size < 2) return ""
-        val payload =
-            String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
-        val json = JSONObject(payload)
-        return json.optString("nameid", "")
-    }
-
     suspend fun checkUserStatus(): String {
-        val result = userRepository.getUserById(userid.value)
+        Log.d("erase", sessionManager.getUserId().toString())
+        val result = userRepository.getUserById(sessionManager.getUserId().toString())
         if (result.isSuccess) {
             return "OK"
         } else if (result.exceptionOrNull()?.message == "NOT_FOUND") {
