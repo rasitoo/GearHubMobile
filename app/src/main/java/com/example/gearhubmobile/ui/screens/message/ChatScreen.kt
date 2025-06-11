@@ -8,24 +8,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.gearhubmobile.data.models.Message
-import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gearhubmobile.data.models.Message
 
 /**
  * @author Rodrigo
@@ -43,7 +44,7 @@ fun ChatDetailScreen(
         viewModel.connectToChat(chatId.toInt())
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize().padding(8.dp)) {
         LazyColumn(
             modifier = Modifier.weight(1f).fillMaxWidth(),
             reverseLayout = true
@@ -54,7 +55,7 @@ fun ChatDetailScreen(
             }
         }
 
-        var input by remember { mutableStateOf("") }
+        var input by rememberSaveable { mutableStateOf("") }
         Row {
             OutlinedTextField(
                 value = input,
@@ -80,9 +81,9 @@ fun MessageBubble(
     viewModel: MessageViewModel = hiltViewModel()
 ) {
     val isMine = message.senderId == currentUserId
-    var expanded by remember { mutableStateOf(false) }
-    var isEditing by remember { mutableStateOf(false) }
-    var editText by remember { mutableStateOf(message.content ?: "") }
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var isEditing by rememberSaveable { mutableStateOf(false) }
+    var editText by rememberSaveable { mutableStateOf(message.content ?: "") }
 
     Row(
         modifier = Modifier
