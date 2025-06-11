@@ -18,13 +18,6 @@ data class User(
     val type: Int,
 )
 
-data class UserProfileCreateRequest(
-    val name: String,
-    val userName: String,
-    val desc: String,
-    val address: String? = null,
-    val profilePicture: String? = null
-)
 
 data class UserProfileUpdateRequest(
     val name: String,

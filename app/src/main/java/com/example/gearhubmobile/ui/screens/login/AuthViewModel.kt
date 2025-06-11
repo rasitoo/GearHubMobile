@@ -1,13 +1,16 @@
 package com.example.gearhubmobile.ui.screens.login
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Base64
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.gearhubmobile.data.models.LoginResponse
 import com.example.gearhubmobile.data.repositories.AuthRepository
 import com.example.gearhubmobile.data.repositories.ProfileRepository
 import com.example.gearhubmobile.utils.SessionManager
@@ -16,6 +19,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import javax.inject.Inject
 
@@ -33,15 +41,16 @@ class AuthViewModel @Inject constructor(
     val userid = sessionManager.token.map { extractUserIdFromToken(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
     val token = sessionManager.token
+    var name = ""
 
-    var loginSuccess by mutableStateOf<Boolean?>(null)
+    var loginResult  by mutableStateOf<Result<LoginResponse>?>(null)
 
     var isLoading by mutableStateOf(false)
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
             isLoading = true
-            loginSuccess = repository.login(email, password)
+            loginResult  = repository.login(email, password)
             isLoading = false
         }
     }
@@ -62,18 +71,6 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             repository.recover(email)
         }
-    }
-
-    fun isTokenExpired(token: String?): Boolean {
-        if (token.isNullOrBlank()) return true
-        val parts = token.split(".")
-        if (parts.size < 2) return true
-        val payload =
-            String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
-        val json = JSONObject(payload)
-        val exp = json.optLong("exp", 0L)
-        val now = System.currentTimeMillis() / 1000
-        return exp < now
     }
 
     fun extractUserIdFromToken(token: String?): String {
@@ -99,4 +96,51 @@ class AuthViewModel @Inject constructor(
             return "UNKNOWN"
         }
     }
+
+    fun createUser(
+        name: String,
+        username: String,
+        description: String,
+        address: String,
+        profilePictureUri: Uri?,
+        context: Context
+    ) {
+        val contentResolver = context.contentResolver
+        val mimeType = contentResolver.getType(profilePictureUri!!) ?: "image/*"
+        val fileName = getFileNameFromUri(context, profilePictureUri)
+
+        val inputStream = contentResolver.openInputStream(profilePictureUri)
+        val bytes = inputStream?.readBytes()
+        inputStream?.close()
+
+        val requestFile = bytes?.toRequestBody(mimeType.toMediaTypeOrNull())
+
+        val picturePart = requestFile?.let {
+            MultipartBody.Part.createFormData("profilePicture", fileName, it)
+        }
+
+        viewModelScope.launch {
+            userRepository.createUserProfile(
+                name.toRequestBody(), username.toRequestBody(), description.toRequestBody(), address.toRequestBody(), picturePart
+            )
+        }
+    }
+
+    fun getFileNameFromUri(context: Context, uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index >= 0) result = it.getString(index)
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.lastPathSegment?.substringAfterLast('/')
+        }
+        return result ?: (System.currentTimeMillis().toString() + ".png")
+    }
+
 }

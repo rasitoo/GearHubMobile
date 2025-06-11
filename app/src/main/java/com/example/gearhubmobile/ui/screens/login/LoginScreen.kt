@@ -1,5 +1,9 @@
 package com.example.gearhubmobile.ui.screens.login
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -20,16 +27,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.gearhubmobile.ui.screens.InitScreen
+import com.example.gearhubmobile.ui.screens.Screen
 
 /**
  * @author Rodrigo
@@ -42,14 +52,16 @@ fun LoginScreen(
     navController: NavHostController,
     onLoginSuccess: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    val scrollState = rememberScrollState()
+
 
     val isLoading = viewModel.isLoading
-    val loginSuccess = viewModel.loginSuccess
+    val result = viewModel.loginResult
 
-    LaunchedEffect(loginSuccess) {
-        if (loginSuccess == true) {
+    LaunchedEffect(result) {
+        if (result?.isSuccess ?: false) {
             onLoginSuccess()
         }
     }
@@ -57,6 +69,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
@@ -116,8 +129,13 @@ fun LoginScreen(
                 CircularProgressIndicator()
             }
 
-            loginSuccess == false -> {
-                Text("Credenciales incorrectas o error de conexión", color = Color.Red)
+            result?.isSuccess == true -> {
+                onLoginSuccess()
+            }
+
+            result?.isFailure == true -> {
+                val error = result.exceptionOrNull()?.message ?: "Error"
+                Text(text = error, color = Color.Red)
             }
         }
     }
@@ -128,18 +146,20 @@ fun RegisterScreen(
     viewModel: AuthViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var isWorkshop by remember { mutableStateOf(false) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var name by rememberSaveable { mutableStateOf("") }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var confirmPassword by rememberSaveable { mutableStateOf("") }
+    var isWorkshop by rememberSaveable { mutableStateOf(false) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+    val scrollState = rememberScrollState()
 
     val isLoading = viewModel.isLoading
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
@@ -198,6 +218,7 @@ fun RegisterScreen(
                 } else {
                     error = null
                     viewModel.register(name, password, confirmPassword, email, isWorkshop)
+                    viewModel.name = name
                     navController.popBackStack()
                 }
             },
@@ -231,18 +252,128 @@ fun RegisterScreen(
 }
 
 @Composable
-fun RecoverScreen(
+fun CreateUserScreen(
     viewModel: AuthViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
-    var email by remember { mutableStateOf("") }
-    val isLoading = viewModel.isLoading
-    var error by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    var name by rememberSaveable { mutableStateOf(viewModel.name) }
+    var username by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
+    var address by rememberSaveable { mutableStateOf("") }
+    var profilePictureUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    val scrollState = rememberScrollState()
 
+    val isLoading = viewModel.isLoading
+
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            if (uri != null) {
+                profilePictureUri = uri
+            }
+        }
+    )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("Crear usuario", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Nombre") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = username,
+            onValueChange = { username = it },
+            label = { Text("Nombre de usuario") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Descripción") },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = address,
+            onValueChange = { address = it },
+            label = { Text("Dirección") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        if (profilePictureUri != null) {
+            AsyncImage(
+                model = profilePictureUri,
+                contentDescription = "Profile picture",
+                modifier = Modifier
+                    .size(100.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
+
+        Button(
+            onClick = {
+                pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) {
+            Text("Seleccionar imagen de perfil")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = {
+                viewModel.createUser(
+                    name,
+                    username,
+                    description,
+                    address,
+                    profilePictureUri, context
+                )
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(InitScreen.Home.route) { inclusive = true }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !isLoading
+        ) {
+            Text("Crear usuario")
+        }
+    }
+}
+
+
+@Composable
+fun RecoverScreen(
+    viewModel: AuthViewModel = hiltViewModel(),
+    navController: NavHostController
+) {
+    var email by rememberSaveable { mutableStateOf("") }
+    val isLoading = viewModel.isLoading
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+
+
+    val scrollState = rememberScrollState()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {

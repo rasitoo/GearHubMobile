@@ -2,9 +2,13 @@ package com.example.gearhubmobile.data.repositories
 
 
 import com.example.gearhubmobile.data.apirest.AuthApi
+import com.example.gearhubmobile.data.models.ErrorResponse
 import com.example.gearhubmobile.utils.SessionManager
 import com.example.gearhubmobile.data.models.LoginRequest
+import com.example.gearhubmobile.data.models.LoginResponse
 import com.example.gearhubmobile.data.models.RegisterRequest
+import com.example.gearhubmobile.data.models.User
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -18,23 +22,37 @@ class AuthRepository @Inject constructor(
     private val sessionManager: SessionManager
 ) {
 
-    suspend fun login(email: String, password: String): Boolean {
+    suspend fun login(email: String, password: String): Result<LoginResponse> {
         return try {
             val response = api.login(LoginRequest(email, password))
-            if (response.isSuccessful) {
-                response.body()?.token?.let { token ->
-                    sessionManager.saveToken(token)
-                    return true
+            when (response.code()) {
+                200 -> {
+                    response.body()?.token?.let { token ->
+                        sessionManager.saveToken(token)
+                    }
+                    Result.success(response.body()!!)
                 }
-                false
-            } else {
-                false
+
+                401 -> Result.failure(Exception("Credenciales incorrectas"))
+                403 -> Result.failure(Exception("No tienes permiso"))
+                500 -> Result.failure(Exception("Error de servidor"))
+                else -> {
+                    val errorBody = response.errorBody()?.string()
+                    val message = try {
+                        val error = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                        error.message
+                    } catch (e: Exception) {
+                        "Error inesperado: ${response.code()}"
+                    }
+
+                    Result.failure(Exception(message))
+                }
             }
         } catch (e: Exception) {
-            false
+            Result.failure(Exception("Error de red: ${e.message}"))
         }
-    }
 
+    }
 
     suspend fun register(
         name: String,

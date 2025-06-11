@@ -5,15 +5,24 @@ package com.example.gearhubmobile.data.apirest
  * @date 21 mayo, 2025
  */
 import com.example.gearhubmobile.data.models.User
-import com.example.gearhubmobile.data.models.UserProfileCreateRequest
 import com.example.gearhubmobile.data.models.UserProfileUpdateRequest
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
 interface ProfileApi {
 
+    @Multipart
     @POST("api/UserProfile/UserCreate")
-    suspend fun createUserProfile(@Body profile: UserProfileCreateRequest) : Response<Unit>
+    suspend fun createUser(
+        @Part("Name") name: RequestBody,
+        @Part("UserName") username: RequestBody,
+        @Part("Description") description: RequestBody,
+        @Part("Address") address: RequestBody,
+        @Part profilePicture: MultipartBody.Part?
+    ): Response<Unit>
+
 
     @PATCH("api/UserProfile/UserUpdate")
     suspend fun updateUserProfile(@Body profile: UserProfileUpdateRequest) : Response<Unit>

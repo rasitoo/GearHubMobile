@@ -1,6 +1,5 @@
 package com.example.gearhubmobile.data.apirest
 
-import androidx.compose.ui.semantics.Role
 import com.example.gearhubmobile.utils.AuthInterceptor
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.Module

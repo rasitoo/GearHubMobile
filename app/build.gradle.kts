@@ -97,5 +97,9 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.13")
     implementation("org.slf4j:slf4j-simple:2.0.13")
 
+    //Imagenes
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+
 
 }

@@ -27,11 +27,11 @@ fun StartScreen(navController: NavHostController, viewModel: AuthViewModel = hil
         if (token != null) {
             when (viewModel.checkUserStatus()) {
                 "OK"-> navController.navigate(Screen.Home.route) {
-                    popUpTo(InitScreen.Start.route) { inclusive = true }
+                    popUpTo(InitScreen.Home.route) { inclusive = true }
                 }
 
                 "NOT_FOUND" -> navController.navigate(InitScreen.CreateUser.route) {
-                    popUpTo(InitScreen.Start.route) { inclusive = true }
+                    popUpTo(InitScreen.CreateUser.route) { inclusive = true }
                 }
 
                 "UNAUTHORIZED", "UNKNOWN" -> {

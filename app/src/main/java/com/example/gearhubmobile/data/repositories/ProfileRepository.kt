@@ -1,9 +1,14 @@
 package com.example.gearhubmobile.data.repositories
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import com.example.gearhubmobile.data.apirest.ProfileApi
 import com.example.gearhubmobile.data.models.User
-import com.example.gearhubmobile.data.models.UserProfileCreateRequest
 import com.example.gearhubmobile.data.models.UserProfileUpdateRequest
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -17,17 +22,43 @@ class ProfileRepository @Inject constructor(private val api: ProfileApi) {
         return api.getAllUsers()
     }
 
-    suspend fun createUserProfile(
-        name: String,
-        userName: String,
-        desc: String,
-        address: String,
-        profilePicture: String,
-    ): Response<Unit> {
-        val profileRequest = UserProfileCreateRequest(name, userName, desc, address, profilePicture)
+    fun buildRequestBody(text: String): RequestBody =
+        RequestBody.create("text/plain".toMediaTypeOrNull(), text)
 
-        return api.createUserProfile(profileRequest)
+    fun getFileNameFromUri(context: Context, uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index >= 0) result = it.getString(index)
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.lastPathSegment?.substringAfterLast('/')
+        }
+        return result ?: "file_${System.currentTimeMillis()}.png"
     }
+
+    suspend fun createUserProfile(
+        name: RequestBody,
+        username: RequestBody,
+        description: RequestBody,
+        address: RequestBody,
+        profilePictureUri: MultipartBody.Part?) {
+
+
+        api.createUser(
+            name = name,
+            username = username,
+            description = description,
+            address = address,
+            profilePicture = profilePictureUri
+        )
+    }
+
 
     suspend fun updateUserProfile(
         name: String,

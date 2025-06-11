@@ -17,6 +17,7 @@ import com.example.gearhubmobile.ui.screens.chat.ChatListScreen
 import com.example.gearhubmobile.ui.screens.home.HomeScreen
 import com.example.gearhubmobile.ui.screens.home.PlaceholderScreen
 import com.example.gearhubmobile.ui.screens.login.AuthViewModel
+import com.example.gearhubmobile.ui.screens.login.CreateUserScreen
 import com.example.gearhubmobile.ui.screens.login.LoginScreen
 import com.example.gearhubmobile.ui.screens.login.RecoverScreen
 import com.example.gearhubmobile.ui.screens.login.RegisterScreen
@@ -35,9 +36,7 @@ fun AppNavHost(navController: NavHostController,viewModel: AuthViewModel = hiltV
         }
         composable(InitScreen.Login.route) {
             LoginScreen(viewModel = viewModel, navController = navController) {
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(InitScreen.Login.route) { inclusive = true }
-                }
+                navController.navigate(InitScreen.Start.route)
             }
         }
         composable(Screen.Home.route) {
@@ -51,6 +50,12 @@ fun AppNavHost(navController: NavHostController,viewModel: AuthViewModel = hiltV
         }
         composable(InitScreen.Recover.route){
             RecoverScreen(
+                viewModel,
+                navController
+            )
+        }
+        composable(InitScreen.CreateUser.route){
+            CreateUserScreen(
                 viewModel,
                 navController
             )
