@@ -37,7 +37,6 @@ fun ChatListScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
         Text("Chats", style = MaterialTheme.typography.headlineMedium)

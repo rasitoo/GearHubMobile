@@ -44,7 +44,7 @@ fun ChatDetailScreen(
         viewModel.connectToChat(chatId.toInt())
     }
 
-    Column(modifier = Modifier.verticalScroll(rememberScrollState()).fillMaxSize().padding(8.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
         LazyColumn(
             modifier = Modifier.weight(1f).fillMaxWidth(),
             reverseLayout = true
