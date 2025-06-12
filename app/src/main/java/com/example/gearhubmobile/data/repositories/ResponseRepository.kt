@@ -18,15 +18,15 @@ class ResponseRepository @Inject constructor(private val api: ResponseApi) {
     }
 
     suspend fun getResponsesByThread(id: String): List<ResponseDTO> {
-        return api.getResponsesByThread(id)
+        return api.getResponsesByThread(id).data
     }
 
     suspend fun getResponsesByLikes(id: String): List<ResponseDTO> {
-        return api.getResponsesByLikes(id)
+        return api.getResponsesByLikes(id).data
     }
 
     suspend fun getResponsesByCreator(id: String): List<ResponseDTO> {
-        return api.getResponsesByCreator(id)
+        return api.getResponsesByCreator(id).data
     }
 
     suspend fun createResponse(

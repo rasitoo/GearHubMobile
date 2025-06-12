@@ -9,10 +9,19 @@ data class ResponseDTO(
     val id: String,
     val creatorId: String,
     val content: String?,
-    val likes: Int?,
+    var likes: Int?,
     val isDeleted: Boolean?,
     val responses: Int?
 )
+
+data class ResponseRequest(
+    val data: List<ResponseDTO>,
+    val pageNumber: Int?,
+    val pageSize: Int?,
+    val totalRecords: Int?,
+    val totalPages: Int?
+)
+
 data class CreateResponseRequest(
     val content: String,
     val parentId: String,

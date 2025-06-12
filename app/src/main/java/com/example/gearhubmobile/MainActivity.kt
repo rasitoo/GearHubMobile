@@ -1,6 +1,7 @@
 package com.example.gearhubmobile
 
 import android.os.Bundle
+import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -35,6 +36,7 @@ import com.example.gearhubmobile.ui.screens.community.CommunityViewModel
 import com.example.gearhubmobile.ui.theme.GearHubMobileTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -88,7 +90,7 @@ fun MainScreen() {
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* Navegar a perfil */ }) {
+                        IconButton(onClick = { navController.navigate(Screen.UserDetail.route) }) {
                             Icon(Icons.Default.AccountCircle, contentDescription = "Perfil")
                         }
                     }

@@ -35,7 +35,7 @@ fun StartScreen(navController: NavHostController, viewModel: AuthViewModel = hil
                 }
 
                 "UNAUTHORIZED", "UNKNOWN" -> {
-                    viewModel.sessionManager.clearToken()
+                    viewModel.clearToken()
                     navController.navigate(InitScreen.Login.route) {
                         popUpTo(InitScreen.Start.route) { inclusive = true }
                     }

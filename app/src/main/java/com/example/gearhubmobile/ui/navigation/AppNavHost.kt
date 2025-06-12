@@ -1,7 +1,7 @@
 package com.example.gearhubmobile.ui.navigation
 
 
-
+import android.util.Base64
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -23,38 +23,38 @@ import com.example.gearhubmobile.ui.screens.login.RecoverScreen
 import com.example.gearhubmobile.ui.screens.login.RegisterScreen
 import com.example.gearhubmobile.ui.screens.login.StartScreen
 import com.example.gearhubmobile.ui.screens.message.ChatDetailScreen
+import com.example.gearhubmobile.ui.screens.profile.ProfileDetailScreen
+import org.json.JSONObject
 
 /**
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
 @Composable
-fun AppNavHost(navController: NavHostController,viewModel: AuthViewModel = hiltViewModel()) {
+fun AppNavHost(navController: NavHostController, viewModel: AuthViewModel = hiltViewModel()) {
     NavHost(navController = navController, startDestination = InitScreen.Start.route) {
         composable(InitScreen.Start.route) {
             StartScreen(navController)
         }
         composable(InitScreen.Login.route) {
-            LoginScreen(viewModel = viewModel, navController = navController) {
-                navController.navigate(InitScreen.Start.route)
-            }
+            LoginScreen(viewModel = viewModel, navController = navController)
         }
         composable(Screen.Home.route) {
             MainScreen()
         }
-        composable(InitScreen.Register.route){
+        composable(InitScreen.Register.route) {
             RegisterScreen(
                 viewModel,
                 navController
             )
         }
-        composable(InitScreen.Recover.route){
+        composable(InitScreen.Recover.route) {
             RecoverScreen(
                 viewModel,
                 navController
             )
         }
-        composable(InitScreen.CreateUser.route){
+        composable(InitScreen.CreateUser.route) {
             CreateUserScreen(
                 viewModel,
                 navController
@@ -76,10 +76,12 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier = Modifier)
         composable(Screen.Communities.route) {
             PlaceholderScreen("Comunidades")
         }
-        composable(route = Screen.CommunityDetail.route,
+        composable(
+            route = Screen.CommunityDetail.route,
             arguments = listOf(navArgument("communityId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val communityId = backStackEntry.arguments?.getString("communityId") ?: return@composable
+            val communityId =
+                backStackEntry.arguments?.getString("communityId") ?: return@composable
             ChatDetailScreen(chatId = communityId)
         }
         composable(Screen.Post.route) {
@@ -90,10 +92,24 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier = Modifier)
                 navController.navigate(Screen.ChatDetail.createRoute(chatId.toString()))
             })
         }
-        composable(route = Screen.ChatDetail.route,
+        composable(
+            route = Screen.UserDetail.route + "?userId={userId}",
+            arguments = listOf(
+                navArgument("userId") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                }
+            )
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")
+            ProfileDetailScreen(userId = userId.toString())
+        }
+        composable(
+            route = Screen.ChatDetail.route,
             arguments = listOf(navArgument("chatId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val chatId = backStackEntry.arguments?.getString("chatId") ?: return@composable
+            val chatId = backStackEntry.arguments?.getString("chatId") ?: "-1"
             ChatDetailScreen(chatId = chatId)
         }
     }

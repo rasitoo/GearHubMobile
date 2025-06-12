@@ -5,6 +5,7 @@ package com.example.gearhubmobile.data.apirest
  * @date 27 mayo, 2025
  */
 import com.example.gearhubmobile.data.models.CreateThreadRequest
+import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.data.models.UpdateThreadRequest
 import retrofit2.Response
 import retrofit2.http.*

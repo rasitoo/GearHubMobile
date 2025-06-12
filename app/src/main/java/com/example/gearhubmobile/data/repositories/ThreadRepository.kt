@@ -2,6 +2,7 @@ package com.example.gearhubmobile.data.repositories
 
 import com.example.gearhubmobile.data.apirest.ThreadApi
 import com.example.gearhubmobile.data.models.CreateThreadRequest
+import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.data.models.UpdateThreadRequest
 import retrofit2.Response
 import javax.inject.Inject
@@ -12,7 +13,7 @@ import javax.inject.Inject
  */
 class ThreadRepository @Inject constructor(private val api: ThreadApi) {
 
-    suspend fun getThreadById(threadId: String): Thread {
+    suspend fun getThreadById(threadId: String): Thread{
         return api.getThreadById(threadId)
     }
 

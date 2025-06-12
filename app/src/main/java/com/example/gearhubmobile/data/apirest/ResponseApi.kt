@@ -6,6 +6,7 @@ package com.example.gearhubmobile.data.apirest
  */
 import com.example.gearhubmobile.data.models.CreateResponseRequest
 import com.example.gearhubmobile.data.models.ResponseDTO
+import com.example.gearhubmobile.data.models.ResponseRequest
 import com.example.gearhubmobile.data.models.UpdateResponseRequest
 import retrofit2.http.*
 
@@ -27,14 +28,14 @@ interface ResponseApi {
     suspend fun updateResponse(@Body request: UpdateResponseRequest) : retrofit2.Response<Unit>
 
     @GET("api/Responses/byLike/{creatorId}")
-    suspend fun getResponsesByLikes(@Path("creatorId") creatorId: String): List<ResponseDTO>
+    suspend fun getResponsesByLikes(@Path("creatorId") creatorId: String): ResponseRequest
 
     @GET("api/Responses/bycreator/{creatorId}")
-    suspend fun getResponsesByCreator(@Path("creatorId") creatorId: String): List<ResponseDTO>
+    suspend fun getResponsesByCreator(@Path("creatorId") creatorId: String): ResponseRequest
 
     @GET("api/Responses/{idResponse}")
     suspend fun getResponseById(@Path("idResponse") id: String): ResponseDTO
 
     @GET("api/Responses/{threadId}/Responses")
-    suspend fun getResponsesByThread(@Path("threadId") threadId: String): List<ResponseDTO>
+    suspend fun getResponsesByThread(@Path("threadId") threadId: String): ResponseRequest
 }
