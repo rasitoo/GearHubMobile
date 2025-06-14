@@ -16,7 +16,7 @@ interface ChatApi {
     suspend fun getChats(): List<Chat>
 
     @POST("api/Chats")
-    suspend fun createChat(@Body request: CreateChatRequest) : Response<Unit>
+    suspend fun createChat(@Body request: CreateChatRequest) : Response<Chat>
 
     @GET("api/Chats/{id}")
     suspend fun getChatById(@Path("id") id: String): Chat

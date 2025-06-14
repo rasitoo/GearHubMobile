@@ -35,10 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.gearhubmobile.ui.screens.InitScreen
+import com.example.gearhubmobile.ui.navigation.Routes
 import com.example.gearhubmobile.ui.screens.Screen
 
 /**
@@ -61,7 +60,7 @@ fun LoginScreen(
 
     LaunchedEffect(result) {
         if (result?.isSuccess == true) {
-            navController.navigate(InitScreen.Start.route)
+            navController.navigate(Routes.MAIN)
         }
     }
 
@@ -107,7 +106,7 @@ fun LoginScreen(
 
         TextButton(
             onClick = {
-                navController.navigate(InitScreen.Register.route)
+                navController.navigate(Routes.REGISTER)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -116,7 +115,7 @@ fun LoginScreen(
 
         TextButton(
             onClick = {
-                navController.navigate(InitScreen.Recover.route)
+                navController.navigate(Routes.RECOVER)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -129,7 +128,7 @@ fun LoginScreen(
             }
 
             result?.isSuccess == true -> {
-                navController.navigate(InitScreen.Start.route)
+                navController.navigate(Routes.START)
             }
 
             result?.isFailure == true -> {
@@ -142,7 +141,7 @@ fun LoginScreen(
 
 @Composable
 fun RegisterScreen(
-    viewModel: AuthViewModel = hiltViewModel(),
+    viewModel: AuthViewModel,
     navController: NavHostController
 ) {
     var name by rememberSaveable { mutableStateOf("") }
@@ -252,7 +251,7 @@ fun RegisterScreen(
 
 @Composable
 fun CreateUserScreen(
-    viewModel: AuthViewModel = hiltViewModel(),
+    viewModel: AuthViewModel,
     navController: NavHostController
 ) {
     val context = LocalContext.current
@@ -346,7 +345,7 @@ fun CreateUserScreen(
                     profilePictureUri, context
                 )
                 navController.navigate(Screen.Home.route) {
-                    popUpTo(InitScreen.Home.route) { inclusive = true }
+                    popUpTo(Routes.HOME)
                 }
             },
             modifier = Modifier.fillMaxWidth(),
@@ -360,7 +359,7 @@ fun CreateUserScreen(
 
 @Composable
 fun RecoverScreen(
-    viewModel: AuthViewModel = hiltViewModel(),
+    viewModel: AuthViewModel,
     navController: NavHostController
 ) {
     var email by rememberSaveable { mutableStateOf("") }

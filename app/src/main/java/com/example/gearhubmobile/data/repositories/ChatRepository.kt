@@ -21,7 +21,7 @@ class ChatRepository @Inject constructor(private val api: ChatApi) {
         return api.getChatById(id)
     }
 
-    suspend fun createChat(name: String): Response<Unit> {
+    suspend fun createChat(name: String): Response<Chat> {
         val chatRequest = CreateChatRequest(name)
         return api.createChat(chatRequest)
     }

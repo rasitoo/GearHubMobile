@@ -6,6 +6,7 @@ import android.provider.OpenableColumns
 import com.example.gearhubmobile.data.apirest.ProfileApi
 import com.example.gearhubmobile.data.models.User
 import com.example.gearhubmobile.data.models.UserProfileUpdateRequest
+import com.example.gearhubmobile.data.models.UserReduction
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -18,28 +19,8 @@ import javax.inject.Inject
  */
 class ProfileRepository @Inject constructor(private val api: ProfileApi) {
 
-    suspend fun getAllUsers(): List<User> {
-        return api.getAllUsers()
-    }
-
-    fun buildRequestBody(text: String): RequestBody =
-        RequestBody.create("text/plain".toMediaTypeOrNull(), text)
-
-    fun getFileNameFromUri(context: Context, uri: Uri): String {
-        var result: String? = null
-        if (uri.scheme == "content") {
-            val cursor = context.contentResolver.query(uri, null, null, null, null)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (index >= 0) result = it.getString(index)
-                }
-            }
-        }
-        if (result == null) {
-            result = uri.lastPathSegment?.substringAfterLast('/')
-        }
-        return result ?: "file_${System.currentTimeMillis()}.png"
+    suspend fun getAllUsers(): List<UserReduction> {
+        return api.getAllUsers().data
     }
 
     suspend fun createUserProfile(

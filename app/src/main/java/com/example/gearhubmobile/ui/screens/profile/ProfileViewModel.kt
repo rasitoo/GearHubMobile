@@ -1,7 +1,5 @@
 package com.example.gearhubmobile.ui.screens.profile
 
-import android.util.Base64
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,11 +13,7 @@ import com.example.gearhubmobile.data.repositories.ResponseRepository
 import com.example.gearhubmobile.data.repositories.ThreadRepository
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import javax.inject.Inject
 
 /**
@@ -34,7 +28,6 @@ class ProfileViewModel @Inject constructor(
     private val sessionManager: SessionManager
 ) :
     ViewModel() {
-    var users by mutableStateOf<List<User>?>(emptyList())
     var responsesUsers by mutableStateOf<Map<String, User>>(emptyMap())
     var threads by mutableStateOf<List<Thread>?>(emptyList())
     var responses by mutableStateOf<List<ResponseDTO>?>(emptyList())
@@ -42,20 +35,6 @@ class ProfileViewModel @Inject constructor(
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var likesState by mutableStateOf<Map<String, Boolean>>(emptyMap())
-
-
-    fun loadUsers() {
-        viewModelScope.launch {
-            isLoading = true
-            try {
-                users = repository.getAllUsers()
-            } catch (e: Exception) {
-                errorMessage = e.message
-            } finally {
-                isLoading = false
-            }
-        }
-    }
 
     fun getUser(id: String) {
         viewModelScope.launch {

@@ -6,6 +6,7 @@ package com.example.gearhubmobile.data.apirest
  */
 import com.example.gearhubmobile.data.models.User
 import com.example.gearhubmobile.data.models.UserProfileUpdateRequest
+import com.example.gearhubmobile.data.models.UserResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -28,7 +29,7 @@ interface ProfileApi {
     suspend fun updateUserProfile(@Body profile: UserProfileUpdateRequest) : Response<Unit>
 
     @GET("api/UserProfile/Users")
-    suspend fun getAllUsers(): List<User>
+    suspend fun getAllUsers(): UserResponse
 
     @GET("api/UserProfile/Users/GetUserById/{userId}")
     suspend fun getUserById(@Path("userId") userId: String): Response<User>

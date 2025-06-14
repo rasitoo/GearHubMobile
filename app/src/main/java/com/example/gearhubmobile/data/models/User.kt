@@ -18,6 +18,19 @@ data class User(
     val type: Int,
 )
 
+data class UserReduction(
+    val userId: String,
+    val profilePicture: String,
+    val userName: String
+)
+
+data class UserResponse(
+    val data: List<UserReduction>,
+    val totalRecords: Int,
+    val lastId: Int,
+    val hasMore: Boolean
+)
+
 
 data class UserProfileUpdateRequest(
     val name: String,

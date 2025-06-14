@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.data.models.Thread
@@ -42,7 +41,7 @@ import com.example.gearhubmobile.ui.components.HeartButton
 @Composable
 fun ProfileDetailScreen(
     userId: String?,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel
 ) {
     LaunchedEffect(Unit) {
         if (userId == "null") {
@@ -136,7 +135,7 @@ fun ProfileDetailScreen(
                 if (viewModel.responses.isNullOrEmpty()) {
                     Text("No hay respuestas.", style = MaterialTheme.typography.bodyMedium)
                 } else {
-                    ResponseList(viewModel.responses)
+                    ResponseList(viewModel.responses,viewModel)
                 }
             }
         }
@@ -155,7 +154,7 @@ fun PostList(posts: List<Thread>?) {
 }
 
 @Composable
-fun ResponseList(responses: List<ResponseDTO>?, viewModel: ProfileViewModel = hiltViewModel()) {
+fun ResponseList(responses: List<ResponseDTO>?, viewModel: ProfileViewModel) {
     var isLiked by rememberSaveable { mutableStateOf(false) }
     Column {
         responses?.forEach { it ->

@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -25,7 +25,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.gearhubmobile.data.models.Message
 
 /**
@@ -33,9 +32,9 @@ import com.example.gearhubmobile.data.models.Message
  * @date 21 mayo, 2025
  */
 @Composable
-fun ChatDetailScreen(
+fun ChatMessagesScreen(
     chatId: String,
-    viewModel: MessageViewModel = hiltViewModel()
+    viewModel: MessageViewModel
 ) {
     val messages by viewModel.messages.collectAsState()
     val currentUserId by viewModel.currentUserId.collectAsState()
@@ -44,14 +43,25 @@ fun ChatDetailScreen(
         viewModel.connectToChat(chatId.toInt())
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
         LazyColumn(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
             reverseLayout = true
         ) {
             items(messages.reversed().size) { index ->
                 val message = messages.reversed()[index]
-                MessageBubble(message, currentUserId.toString(), onDelete = {viewModel.deleteMessage(message.id.toString())})
+                MessageBubble(
+                    message,
+                    viewModel = viewModel,
+                    onDelete = { viewModel.deleteMessage(message.id.toString()) },
+                    currentUserId = currentUserId.toString()
+                )
             }
         }
 
@@ -72,14 +82,15 @@ fun ChatDetailScreen(
         }
     }
 }
+
 @Composable
 fun MessageBubble(
     message: Message,
     currentUserId: String,
-    onEdit: (Message, String) -> Unit = { _, _ -> },
     onDelete: (Message) -> Unit = {},
-    viewModel: MessageViewModel = hiltViewModel()
+    viewModel: MessageViewModel
 ) {
+
     val isMine = message.senderId == currentUserId
     var expanded by rememberSaveable { mutableStateOf(false) }
     var isEditing by rememberSaveable { mutableStateOf(false) }
@@ -111,7 +122,6 @@ fun MessageBubble(
                     Row {
                         Button(onClick = {
                             isEditing = false
-                            onEdit(message, editText)
                             viewModel.editMessage(message.id.toString(), editText)
                         }) {
                             Text("Guardar")
@@ -129,18 +139,18 @@ fun MessageBubble(
                 )
             }
             if (isMine) {
-                androidx.compose.material3.DropdownMenu(
+                DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    androidx.compose.material3.DropdownMenuItem(
+                    DropdownMenuItem(
                         text = { Text("Editar") },
                         onClick = {
                             expanded = false
                             isEditing = true
                         }
                     )
-                    androidx.compose.material3.DropdownMenuItem(
+                    DropdownMenuItem(
                         text = { Text("Borrar") },
                         onClick = {
                             expanded = false

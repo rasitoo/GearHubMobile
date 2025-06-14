@@ -19,6 +19,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import android.util.Base64
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.example.gearhubmobile.data.models.User
+import com.example.gearhubmobile.data.repositories.ProfileRepository
 import kotlinx.coroutines.flow.drop
 import org.json.JSONObject
 
@@ -28,8 +33,8 @@ class MessageViewModel @Inject constructor(private val repository: MessageReposi
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
-
     val currentUserId = sessionManager.token.map { extractUserIdFromToken(it) }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
 
 fun connectToChat(chatId: Int) {
     viewModelScope.launch {
