@@ -1,9 +1,10 @@
 package com.example.gearhubmobile.data.repositories
 
 import com.example.gearhubmobile.data.apirest.ThreadApi
-import com.example.gearhubmobile.data.models.CreateThreadRequest
 import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.data.models.UpdateThreadRequest
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -22,14 +23,17 @@ class ThreadRepository @Inject constructor(private val api: ThreadApi) {
     }
 
     suspend fun createThread(
-        title: String,
-        content: String,
-        communityId: String,
-        images: List<String>,
-    ): Response<Unit> {
-        val threadRequest = CreateThreadRequest(title, content, communityId, images)
-
-        return api.createThread(threadRequest)
+        title: RequestBody,
+        content: RequestBody,
+        communityId: RequestBody,
+        images: List<MultipartBody.Part>
+    ) {
+        api.createThread(
+            title = title,
+            content = content,
+            communityId = communityId,
+            Images = images
+        )
     }
 
     suspend fun unlikeThread(threadId: String): Response<Unit> {

@@ -26,6 +26,7 @@ import com.example.gearhubmobile.ui.screens.login.RecoverScreen
 import com.example.gearhubmobile.ui.screens.login.RegisterScreen
 import com.example.gearhubmobile.ui.screens.message.ChatMessagesScreen
 import com.example.gearhubmobile.ui.screens.message.MessageViewModel
+import com.example.gearhubmobile.ui.screens.post.CreatePostScreen
 import com.example.gearhubmobile.ui.screens.post.PostViewModel
 import com.example.gearhubmobile.ui.screens.profile.ProfileDetailScreen
 import com.example.gearhubmobile.ui.screens.profile.ProfileViewModel
@@ -44,7 +45,7 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
     hiltViewModel<CommunityViewModel>()
     hiltViewModel<HomeViewModel>()
     val messageViewModel = hiltViewModel<MessageViewModel>()
-    hiltViewModel<PostViewModel>()
+    val postViewModel = hiltViewModel<PostViewModel>()
     val profileViewModel = hiltViewModel<ProfileViewModel>()
     val vehicleViewModel = hiltViewModel<VehicleViewModel>()
     NavHost(
@@ -87,6 +88,9 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         }
         composable(Routes.SELECT_USERS) {
             SelectUsersScreen(chatViewModel, navController = navController)
+        }
+        composable(Routes.POST) {
+            CreatePostScreen(viewModel = postViewModel, navController = navController)
         }
         composable(
             route = Routes.USER_DETAIL,

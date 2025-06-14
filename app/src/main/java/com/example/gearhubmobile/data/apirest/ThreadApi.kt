@@ -7,18 +7,28 @@ package com.example.gearhubmobile.data.apirest
 import com.example.gearhubmobile.data.models.CreateThreadRequest
 import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.data.models.UpdateThreadRequest
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface ThreadApi {
 
+    @Multipart
     @POST("api/Thread")
-    suspend fun createThread(@Body request: CreateThreadRequest): Response<Unit>
+    suspend fun createThread(
+        @Part("Title") title: RequestBody,
+        @Part("Content") content: RequestBody,
+        @Part("CommunityId") communityId: RequestBody,
+        @Part Images: List<MultipartBody.Part>
+    ): Response<Unit>
 
     @PUT("api/Thread")
     suspend fun updateThread(@Body request: UpdateThreadRequest): Response<Unit>
