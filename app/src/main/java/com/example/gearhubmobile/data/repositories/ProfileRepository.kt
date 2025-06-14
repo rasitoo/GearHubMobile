@@ -1,13 +1,9 @@
 package com.example.gearhubmobile.data.repositories
 
-import android.content.Context
-import android.net.Uri
-import android.provider.OpenableColumns
 import com.example.gearhubmobile.data.apirest.ProfileApi
 import com.example.gearhubmobile.data.models.User
 import com.example.gearhubmobile.data.models.UserProfileUpdateRequest
 import com.example.gearhubmobile.data.models.UserReduction
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -28,7 +24,8 @@ class ProfileRepository @Inject constructor(private val api: ProfileApi) {
         username: RequestBody,
         description: RequestBody,
         address: RequestBody,
-        profilePictureUri: MultipartBody.Part?) {
+        profilePictureUri: MultipartBody.Part?
+    ) {
 
 
         api.createUser(

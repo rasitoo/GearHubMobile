@@ -3,8 +3,13 @@ package com.example.gearhubmobile.data.apirest
 import com.example.gearhubmobile.data.models.Chat
 import com.example.gearhubmobile.data.models.CreateChatRequest
 import com.example.gearhubmobile.data.models.UpdateChatRequest
-import retrofit2.http.*
 import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 /**
  * @author Rodrigo
@@ -16,7 +21,7 @@ interface ChatApi {
     suspend fun getChats(): List<Chat>
 
     @POST("api/Chats")
-    suspend fun createChat(@Body request: CreateChatRequest) : Response<Chat>
+    suspend fun createChat(@Body request: CreateChatRequest): Response<Chat>
 
     @GET("api/Chats/{id}")
     suspend fun getChatById(@Path("id") id: String): Chat

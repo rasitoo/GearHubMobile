@@ -11,8 +11,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.models.Chat
-import com.example.gearhubmobile.data.models.Message
-import com.example.gearhubmobile.data.models.User
 import com.example.gearhubmobile.data.models.UserReduction
 import com.example.gearhubmobile.data.repositories.ChatRepository
 import com.example.gearhubmobile.data.repositories.ProfileRepository

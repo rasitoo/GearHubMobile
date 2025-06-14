@@ -1,9 +1,6 @@
 package com.example.gearhubmobile.data.repositories
 
 import com.example.gearhubmobile.data.apirest.VehiclesApi
-import com.example.gearhubmobile.data.models.Chat
-import com.example.gearhubmobile.data.models.CreateChatRequest
-import com.example.gearhubmobile.data.models.UpdateChatRequest
 import com.example.gearhubmobile.data.models.Vehicle
 import com.example.gearhubmobile.data.models.VehicleDetail
 import com.example.gearhubmobile.data.models.VehiclePost

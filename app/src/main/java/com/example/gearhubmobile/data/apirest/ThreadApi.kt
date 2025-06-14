@@ -8,15 +8,20 @@ import com.example.gearhubmobile.data.models.CreateThreadRequest
 import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.data.models.UpdateThreadRequest
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface ThreadApi {
 
     @POST("api/Thread")
-    suspend fun createThread(@Body request: CreateThreadRequest) : Response<Unit>
+    suspend fun createThread(@Body request: CreateThreadRequest): Response<Unit>
 
     @PUT("api/Thread")
-    suspend fun updateThread(@Body request: UpdateThreadRequest) : Response<Unit>
+    suspend fun updateThread(@Body request: UpdateThreadRequest): Response<Unit>
 
     @GET("api/Thread/All")
     suspend fun getAllThreads(): List<Thread>
@@ -28,10 +33,10 @@ interface ThreadApi {
     suspend fun hasLikedThread(@Path("threadId") threadId: String): Boolean
 
     @POST("api/Thread/LikeThread/{threadId}")
-    suspend fun likeThread(@Path("threadId") threadId: String) : Response<Unit>
+    suspend fun likeThread(@Path("threadId") threadId: String): Response<Unit>
 
     @DELETE("api/Thread/UnlikeThread/{threadId}")
-    suspend fun unlikeThread(@Path("threadId") threadId: String) : Response<Unit>
+    suspend fun unlikeThread(@Path("threadId") threadId: String): Response<Unit>
 
     @GET("api/Thread/bylike/{creatorId}")
     suspend fun getThreadsByLikes(@Path("creatorId") creatorId: String): List<Thread>

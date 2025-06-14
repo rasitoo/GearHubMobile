@@ -1,8 +1,6 @@
 package com.example.gearhubmobile
 
 import android.app.Application
-import com.example.gearhubmobile.data.apirest.RetrofitInstance
-import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.HiltAndroidApp
 
 /**

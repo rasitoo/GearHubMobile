@@ -13,7 +13,7 @@ import javax.inject.Inject
  */
 class ThreadRepository @Inject constructor(private val api: ThreadApi) {
 
-    suspend fun getThreadById(threadId: String): Thread{
+    suspend fun getThreadById(threadId: String): Thread {
         return api.getThreadById(threadId)
     }
 

@@ -3,8 +3,6 @@ package com.example.gearhubmobile.ui.screens.login
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.util.Base64
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,16 +13,10 @@ import com.example.gearhubmobile.data.repositories.AuthRepository
 import com.example.gearhubmobile.data.repositories.ProfileRepository
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
 import javax.inject.Inject
 
 /**
@@ -40,17 +32,18 @@ class AuthViewModel @Inject constructor(
     var name = ""
     val token = sessionManager.token
 
-    var loginResult  by mutableStateOf<Result<LoginResponse>?>(null)
+    var loginResult by mutableStateOf<Result<LoginResponse>?>(null)
 
     var isLoading by mutableStateOf(false)
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
             isLoading = true
-            loginResult  = repository.login(email, password)
+            loginResult = repository.login(email, password)
             isLoading = false
         }
     }
+
     fun clearToken() {
         viewModelScope.launch {
             sessionManager.clearToken()
@@ -112,7 +105,11 @@ class AuthViewModel @Inject constructor(
 
         viewModelScope.launch {
             userRepository.createUserProfile(
-                name.toRequestBody(), username.toRequestBody(), description.toRequestBody(), address.toRequestBody(), picturePart
+                name.toRequestBody(),
+                username.toRequestBody(),
+                description.toRequestBody(),
+                address.toRequestBody(),
+                picturePart
             )
         }
     }

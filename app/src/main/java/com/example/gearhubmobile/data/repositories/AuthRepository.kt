@@ -3,13 +3,11 @@ package com.example.gearhubmobile.data.repositories
 
 import com.example.gearhubmobile.data.apirest.AuthApi
 import com.example.gearhubmobile.data.models.ErrorResponse
-import com.example.gearhubmobile.utils.SessionManager
 import com.example.gearhubmobile.data.models.LoginRequest
 import com.example.gearhubmobile.data.models.LoginResponse
 import com.example.gearhubmobile.data.models.RegisterRequest
-import com.example.gearhubmobile.data.models.User
+import com.example.gearhubmobile.utils.SessionManager
 import com.google.gson.Gson
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -68,6 +66,7 @@ class AuthRepository @Inject constructor(
             false
         }
     }
+
     suspend fun recover(
         email: String
     ): Boolean {

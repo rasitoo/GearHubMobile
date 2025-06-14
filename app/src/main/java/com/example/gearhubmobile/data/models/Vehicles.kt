@@ -40,6 +40,7 @@ data class VehicleDetail(
     val license: String,
     val userId: String
 )
+
 data class VehiclePost(
     val vin: String,
     val brand: String,
@@ -47,6 +48,7 @@ data class VehiclePost(
     val year: Int,
     val license: String
 )
+
 data class Vehicle(
     val id: String,
     val license: String,

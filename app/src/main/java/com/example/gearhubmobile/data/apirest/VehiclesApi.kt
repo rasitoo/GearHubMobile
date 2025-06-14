@@ -1,8 +1,5 @@
 package com.example.gearhubmobile.data.apirest
 
-import com.example.gearhubmobile.data.models.Chat
-import com.example.gearhubmobile.data.models.CreateChatRequest
-import com.example.gearhubmobile.data.models.UpdateChatRequest
 import com.example.gearhubmobile.data.models.Vehicle
 import com.example.gearhubmobile.data.models.VehicleDetail
 import com.example.gearhubmobile.data.models.VehiclePost
@@ -29,7 +26,7 @@ interface VehiclesApi {
     suspend fun getVehicleUserById(@Path("id") id: String): VehicleUserDetail
 
     @POST("api/users")
-    suspend fun createVehicleUser(@Body request: VehicleUserPost) : Response<VehicleUser>
+    suspend fun createVehicleUser(@Body request: VehicleUserPost): Response<VehicleUser>
 
     @PUT("api/users/{id}")
     suspend fun updateVehicleUser(@Path("id") id: String, @Body request: VehicleUserPost)
@@ -44,7 +41,7 @@ interface VehiclesApi {
     suspend fun getVehicleById(@Path("id") id: String): VehicleDetail
 
     @POST("api/vehicles")
-    suspend fun createVehicle(@Body request: VehiclePost) : Response<Vehicle>
+    suspend fun createVehicle(@Body request: VehiclePost): Response<Vehicle>
 
     @PUT("api/vehicles/{id}")
     suspend fun updateVehicle(@Path("id") id: String, @Body request: VehiclePost)

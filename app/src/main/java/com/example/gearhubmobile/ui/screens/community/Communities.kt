@@ -48,7 +48,7 @@ fun AllCommunities(viewModel: CommunityViewModel) {
 
 @Composable
 fun CommunityList(
-    viewModel: CommunityViewModel ,
+    viewModel: CommunityViewModel,
     onCommunityClick: (CommunityDto) -> Unit
 ) {
     LaunchedEffect(Unit) {

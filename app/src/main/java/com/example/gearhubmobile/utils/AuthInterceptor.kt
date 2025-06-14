@@ -10,7 +10,8 @@ import javax.inject.Inject
  * @author Rodrigo
  * @date 25 mayo, 2025
  */
-class AuthInterceptor @Inject constructor(private val sessionManager: SessionManager) : Interceptor {
+class AuthInterceptor @Inject constructor(private val sessionManager: SessionManager) :
+    Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
         val token = runBlocking { sessionManager.token.firstOrNull() }

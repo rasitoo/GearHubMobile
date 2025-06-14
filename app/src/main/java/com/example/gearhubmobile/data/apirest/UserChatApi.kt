@@ -4,7 +4,10 @@ import com.example.gearhubmobile.data.models.CreateUserChatRequest
 import com.example.gearhubmobile.data.models.DeleteUserChatRequest
 import com.example.gearhubmobile.data.models.UserChatDto
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.POST
 
 /**
  * @author Rodrigo
@@ -17,8 +20,8 @@ interface UserChatApi {
     suspend fun getUserChats(): List<UserChatDto>
 
     @POST("api/UserChat")
-    suspend fun createUserChat(@Body request: CreateUserChatRequest) : Response<Unit>
+    suspend fun createUserChat(@Body request: CreateUserChatRequest): Response<Unit>
 
     @DELETE("api/UserChat")
-    suspend fun deleteUserChat(@Body request: DeleteUserChatRequest) : Response<Unit>
+    suspend fun deleteUserChat(@Body request: DeleteUserChatRequest): Response<Unit>
 }

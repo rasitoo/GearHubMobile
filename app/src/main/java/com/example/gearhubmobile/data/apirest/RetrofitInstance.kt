@@ -60,61 +60,73 @@ object RetrofitInstance {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
     @Provides
     @Singleton
-    fun provideCommunityApi(retrofit: Retrofit): CommunityApi{
+    fun provideCommunityApi(retrofit: Retrofit): CommunityApi {
         return retrofit.create(CommunityApi::class.java)
     }
+
     @Provides
     @Singleton
-    fun provideAuthApi(retrofit: Retrofit): AuthApi  {
+    fun provideAuthApi(retrofit: Retrofit): AuthApi {
         return retrofit.create(AuthApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideChatApi(retrofit: Retrofit): ChatApi {
         return retrofit.create(ChatApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideProfileApi(retrofit: Retrofit): ProfileApi {
         return retrofit.create(ProfileApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideFollowsApi(retrofit: Retrofit): FollowsApi {
         return retrofit.create(FollowsApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideMessageApi(retrofit: Retrofit): MessageApi {
         return retrofit.create(MessageApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideResponseApi(retrofit: Retrofit): ResponseApi {
         return retrofit.create(ResponseApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideRolesApi(retrofit: Retrofit): RolesApi {
         return retrofit.create(RolesApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideThreadApi(retrofit: Retrofit): ThreadApi {
         return retrofit.create(ThreadApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideUserChatApi(retrofit: Retrofit): UserChatApi {
         return retrofit.create(UserChatApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideReviewApi(retrofit: Retrofit): ReviewApi {
         return retrofit.create(ReviewApi::class.java)
     }
+
     @Provides
     @Singleton
     fun provideVehiclesApi(retrofit: Retrofit): VehiclesApi {

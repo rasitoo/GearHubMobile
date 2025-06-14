@@ -14,17 +14,20 @@ data class Community(
     val creatorId: String,
     val subscriptions: Int?
 )
+
 data class CommunityDto(
     val id: String,
     val comName: String,
     val comPicture: String?
 )
+
 data class CommunityCreateDTO(
     val id: String,
     val comName: String?,
     val comPicture: String?,
     val comBanner: String?
 )
+
 data class CommunityUpdateDTO(
     val id: String,
     val comName: String?,

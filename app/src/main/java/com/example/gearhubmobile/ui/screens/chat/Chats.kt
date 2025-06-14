@@ -1,6 +1,5 @@
 package com.example.gearhubmobile.ui.screens.chat
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -170,7 +169,6 @@ fun SelectUsersScreen(
 
         Button(
             onClick = {
-                Log.d("erase", "Vas a salir de aqui con " + viewModel.usersSelected.size)
                 navController.navigate("createChat")
             },
             modifier = Modifier.fillMaxWidth(),
@@ -188,8 +186,6 @@ fun CreateChatScreen(
 ) {
     var chatName by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf<String?>(null) }
-    Log.d("erase", "Entras con " + viewModel.usersSelected.size)
-
 
     Column(
         modifier = Modifier

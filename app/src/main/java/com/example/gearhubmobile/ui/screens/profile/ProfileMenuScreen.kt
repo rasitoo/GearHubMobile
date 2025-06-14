@@ -14,9 +14,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -35,7 +35,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.compose.material3.Icon
 import coil.compose.AsyncImage
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.data.models.Thread

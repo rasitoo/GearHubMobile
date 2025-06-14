@@ -32,7 +32,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.gearhubmobile.ui.navigation.AppNavHost
@@ -128,21 +127,20 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
                 }
             }
         )
-        {
-            innerPadding ->
-            MainNavHost(navController = navController, modifier =  Modifier.padding(innerPadding))
+        { innerPadding ->
+            MainNavHost(navController = navController, modifier = Modifier.padding(innerPadding))
         }
     }
 }
 
 @Composable
-fun StartScreen(navController: NavHostController, viewModel: AuthViewModel ) {
+fun StartScreen(navController: NavHostController, viewModel: AuthViewModel) {
     val token by viewModel.token.collectAsState(initial = null)
 
     LaunchedEffect(token) {
         if (token != null) {
             when (viewModel.checkUserStatus()) {
-                "OK"-> navController.navigate(Routes.MAIN)
+                "OK" -> navController.navigate(Routes.MAIN)
 
                 "NOT_FOUND" -> navController.navigate(Routes.CREATE_USER)
 

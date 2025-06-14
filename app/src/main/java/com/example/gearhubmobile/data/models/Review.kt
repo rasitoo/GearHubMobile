@@ -11,7 +11,7 @@ data class Review(
     val comment: String,
     val userId: String,
     val response: ResponseDTO
-    )
+)
 
 data class CreateReviewRequest(
     val workshopId: String,
@@ -24,6 +24,7 @@ data class UpdateReviewRequest(
     val rating: Int,
     val comment: String
 )
+
 data class ReviewResponseDto(
     val id: String,
     val content: String,

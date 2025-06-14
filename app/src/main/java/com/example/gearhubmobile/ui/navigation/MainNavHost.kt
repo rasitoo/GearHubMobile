@@ -39,12 +39,12 @@ import com.example.gearhubmobile.ui.screens.vehicle.VehiclesScreen
  */
 @Composable
 fun MainNavHost(navController: NavHostController, modifier: Modifier) {
-    val authViewModel = hiltViewModel<AuthViewModel>()
+    hiltViewModel<AuthViewModel>()
     val chatViewModel = hiltViewModel<ChatViewModel>()
-    val communityViewModel = hiltViewModel<CommunityViewModel>()
-    val homeViewModel = hiltViewModel<HomeViewModel>()
+    hiltViewModel<CommunityViewModel>()
+    hiltViewModel<HomeViewModel>()
     val messageViewModel = hiltViewModel<MessageViewModel>()
-    val postViewModel = hiltViewModel<PostViewModel>()
+    hiltViewModel<PostViewModel>()
     val profileViewModel = hiltViewModel<ProfileViewModel>()
     val vehicleViewModel = hiltViewModel<VehicleViewModel>()
     NavHost(
@@ -71,16 +71,16 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         composable(Routes.CREATE_CHAT) {
             CreateChatScreen(chatViewModel, navController = navController)
         }
-        composable(route = Routes.VEHICLES, arguments = listOf(
+        composable(
+            route = Routes.VEHICLES, arguments = listOf(
             navArgument("userId") {
                 type = NavType.StringType
                 defaultValue = null
                 nullable = true
             }
-        )) {
-                backStackEntry ->
+        )) { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")
-            VehiclesScreen(userId,vehicleViewModel, navController = navController)
+            VehiclesScreen(userId, vehicleViewModel, navController = navController)
         }
         composable(Routes.ADD_VEHICLE) {
             AddVehicleScreen(vehicleViewModel, navController = navController)

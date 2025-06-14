@@ -8,8 +8,13 @@ import com.example.gearhubmobile.data.models.Community
 import com.example.gearhubmobile.data.models.CommunityCreateDTO
 import com.example.gearhubmobile.data.models.CommunityResponse
 import com.example.gearhubmobile.data.models.CommunityUpdateDTO
-import retrofit2.http.*
 import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
 
 interface CommunityApi {
 
@@ -23,10 +28,10 @@ interface CommunityApi {
     suspend fun getSubscribedCommunities(): List<Community>
 
     @POST("api/Community")
-    suspend fun createCommunity(@Body community: CommunityCreateDTO) : Response<Unit>
+    suspend fun createCommunity(@Body community: CommunityCreateDTO): Response<Unit>
 
     @PUT("api/Community")
-    suspend fun updateCommunity(@Body community: CommunityUpdateDTO) : Response<Unit>
+    suspend fun updateCommunity(@Body community: CommunityUpdateDTO): Response<Unit>
 
     @GET("api/Community/{id}")
     suspend fun getCommunityById(@Path("id") id: String): Community

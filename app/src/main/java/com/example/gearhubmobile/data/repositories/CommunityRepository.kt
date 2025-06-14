@@ -56,8 +56,14 @@ class CommunityRepository @Inject constructor(private val api: CommunityApi) {
         return api.unsubscribeFromCommunity(id)
     }
 
-    suspend fun updateCommunity(id: String, comName: String, comDesc: String, profileImg: String, bannerImg: String): Response<Unit> {
-        val communityRequest = CommunityUpdateDTO(id,comName, comDesc, profileImg, bannerImg)
+    suspend fun updateCommunity(
+        id: String,
+        comName: String,
+        comDesc: String,
+        profileImg: String,
+        bannerImg: String
+    ): Response<Unit> {
+        val communityRequest = CommunityUpdateDTO(id, comName, comDesc, profileImg, bannerImg)
         return api.updateCommunity(communityRequest)
     }
 

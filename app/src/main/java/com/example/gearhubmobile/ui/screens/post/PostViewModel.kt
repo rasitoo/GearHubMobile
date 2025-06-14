@@ -9,5 +9,4 @@ import javax.inject.Inject
  * @date 21 mayo, 2025
  */
 @HiltViewModel
-class PostViewModel @Inject constructor(): ViewModel() {
-}
+class PostViewModel @Inject constructor() : ViewModel()

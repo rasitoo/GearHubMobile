@@ -59,11 +59,16 @@ fun VehiclesScreen(
             }
         }
     ) { padding ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .padding(padding)) {
-            Text("Vehículos de ${viewModel.user?.userName}", style = MaterialTheme.typography.headlineMedium)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .padding(padding)
+        ) {
+            Text(
+                "Vehículos de ${viewModel.user?.userName}",
+                style = MaterialTheme.typography.headlineMedium
+            )
             Spacer(modifier = Modifier.height(16.dp))
 
             if (vehicles.isEmpty()) {
@@ -98,82 +103,82 @@ fun AddVehicleScreen(
     viewModel: VehicleViewModel,
     navController: NavHostController
 ) {
-        var vin by rememberSaveable { mutableStateOf("") }
-        var brand by rememberSaveable { mutableStateOf("") }
-        var model by rememberSaveable { mutableStateOf("") }
-        var year by rememberSaveable { mutableStateOf("") }
-        var license by rememberSaveable { mutableStateOf("") }
-        var error by rememberSaveable { mutableStateOf<String?>(null) }
+    var vin by rememberSaveable { mutableStateOf("") }
+    var brand by rememberSaveable { mutableStateOf("") }
+    var model by rememberSaveable { mutableStateOf("") }
+    var year by rememberSaveable { mutableStateOf("") }
+    var license by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
 
-        Scaffold(
-            topBar = {
-                TopAppBar(title = { Text("Añadir vehículo") })
-            }
-        ) { padding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp)
-                    .padding(padding),
-                verticalArrangement = Arrangement.Top
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Añadir vehículo") })
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp)
+                .padding(padding),
+            verticalArrangement = Arrangement.Top
+        ) {
+            OutlinedTextField(
+                value = vin,
+                onValueChange = { vin = it },
+                label = { Text("Nº de bastidor") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = brand,
+                onValueChange = { brand = it },
+                label = { Text("Marca") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = model,
+                onValueChange = { model = it },
+                label = { Text("Modelo") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = year,
+                onValueChange = { year = it.filter { c -> c.isDigit() } },
+                label = { Text("Año") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = license,
+                onValueChange = { license = it },
+                label = { Text("Matrícula") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = {
+                    if (brand.isBlank() || model.isBlank() || year.isBlank() || license.isBlank()) {
+                        error = "Todos los campos son obligatorios"
+                    }
+                    viewModel.createVehicle(vin, brand, model, year.toIntOrNull() ?: 0, license)
+                    navController.popBackStack()
+                },
+                modifier = Modifier.fillMaxWidth()
             ) {
-                OutlinedTextField(
-                    value = vin,
-                    onValueChange = { vin = it },
-                    label = { Text("Nº de bastidor") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = brand,
-                    onValueChange = { brand = it },
-                    label = { Text("Marca") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
+                Text("Guardar vehículo")
+            }
 
-                OutlinedTextField(
-                    value = model,
-                    onValueChange = { model = it },
-                    label = { Text("Modelo") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = year,
-                    onValueChange = { year = it.filter { c -> c.isDigit() } },
-                    label = { Text("Año") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = license,
-                    onValueChange = { license = it },
-                    label = { Text("Matrícula") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = {
-                        if (brand.isBlank() || model.isBlank() || year.isBlank() || license.isBlank()) {
-                            error = "Todos los campos son obligatorios"
-                        }
-                        viewModel.createVehicle(vin,brand, model, year.toIntOrNull() ?: 0, license)
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Guardar vehículo")
-                }
-
-                if (error != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(error!!, color = Color.Red)
-                }
+            if (error != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(error!!, color = Color.Red)
             }
         }
     }
+}

@@ -4,6 +4,7 @@ package com.example.gearhubmobile.ui.screens.message
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
+import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.models.Message
@@ -17,58 +18,56 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import android.util.Base64
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import com.example.gearhubmobile.data.models.User
-import com.example.gearhubmobile.data.repositories.ProfileRepository
-import kotlinx.coroutines.flow.drop
 import org.json.JSONObject
+import javax.inject.Inject
 
 @HiltViewModel
-class MessageViewModel @Inject constructor(private val repository: MessageRepository,    private val sessionManager: SessionManager
+class MessageViewModel @Inject constructor(
+    private val repository: MessageRepository, private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
-    val currentUserId = sessionManager.token.map { extractUserIdFromToken(it) }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
+    val currentUserId = sessionManager.token.map { extractUserIdFromToken(it) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
 
-fun connectToChat(chatId: Int) {
-    viewModelScope.launch {
-        val history = repository.getMessagesFiltered(chatId = chatId)
-        _messages.value = history
+    fun connectToChat(chatId: Int) {
+        viewModelScope.launch {
+            val history = repository.getMessagesFiltered(chatId = chatId)
+            _messages.value = history
 
-        repository.connect(chatId.toString(),
-            onReceive = { newMessage ->
-                _messages.update { it + newMessage }
-            },
-            onUpdate = { updatedMessage ->
-                _messages.update { messages ->
-                    messages.map { if (it.id == updatedMessage.id) updatedMessage else it }
+            repository.connect(
+                chatId.toString(),
+                onReceive = { newMessage ->
+                    _messages.update { it + newMessage }
+                },
+                onUpdate = { updatedMessage ->
+                    _messages.update { messages ->
+                        messages.map { if (it.id == updatedMessage.id) updatedMessage else it }
+                    }
+                },
+                onDelete = { id ->
+                    _messages.update { messages: List<Message> ->
+                        messages.filter { it.id != id }
+                    }
                 }
-            },
-            onDelete = { id ->
-                _messages.update { messages: List<Message> ->
-                    messages.filter { it.id != id }
-                }
-            }
-        )
+            )
+        }
     }
-}
 
     fun sendMessage(chatId: String, content: String) {
         viewModelScope.launch {
             repository.createMessage(content, chatId)
         }
     }
+
     fun editMessage(messageId: String, content: String) {
         viewModelScope.launch {
             repository.updateMessage(messageId, content)
         }
     }
+
     fun deleteMessage(messageId: String) {
         viewModelScope.launch {
             repository.deleteMessage(messageId)
@@ -84,7 +83,8 @@ fun connectToChat(chatId: Int) {
         if (token.isNullOrBlank()) return ""
         val parts = token.split(".")
         if (parts.size < 2) return ""
-        val payload = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
+        val payload =
+            String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP))
         val json = JSONObject(payload)
         return json.optString("nameid", "")
     }
