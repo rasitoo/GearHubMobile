@@ -29,4 +29,7 @@ object Routes {
 
     const val CREATE_CHAT = "createChat"
     const val SELECT_USERS = "usersList"
+
+    const val VEHICLES = "vehicles"
+    const val ADD_VEHICLE = "add_vehicle"
 }

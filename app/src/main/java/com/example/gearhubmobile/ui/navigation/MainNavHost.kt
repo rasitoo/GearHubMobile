@@ -29,6 +29,9 @@ import com.example.gearhubmobile.ui.screens.message.MessageViewModel
 import com.example.gearhubmobile.ui.screens.post.PostViewModel
 import com.example.gearhubmobile.ui.screens.profile.ProfileDetailScreen
 import com.example.gearhubmobile.ui.screens.profile.ProfileViewModel
+import com.example.gearhubmobile.ui.screens.vehicle.AddVehicleScreen
+import com.example.gearhubmobile.ui.screens.vehicle.VehicleViewModel
+import com.example.gearhubmobile.ui.screens.vehicle.VehiclesScreen
 
 /**
  * @author Rodrigo
@@ -43,7 +46,9 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
     val messageViewModel = hiltViewModel<MessageViewModel>()
     val postViewModel = hiltViewModel<PostViewModel>()
     val profileViewModel = hiltViewModel<ProfileViewModel>()
-    NavHost(navController = navController, startDestination = Routes.HOME,        modifier = modifier
+    val vehicleViewModel = hiltViewModel<VehicleViewModel>()
+    NavHost(
+        navController = navController, startDestination = Routes.HOME, modifier = modifier
     ) {
         composable(Routes.COMMUNITIES) {
             PlaceholderScreen("Comunidades")
@@ -66,6 +71,20 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         composable(Routes.CREATE_CHAT) {
             CreateChatScreen(chatViewModel, navController = navController)
         }
+        composable(route = Routes.VEHICLES, arguments = listOf(
+            navArgument("userId") {
+                type = NavType.StringType
+                defaultValue = null
+                nullable = true
+            }
+        )) {
+                backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")
+            VehiclesScreen(userId,vehicleViewModel, navController = navController)
+        }
+        composable(Routes.ADD_VEHICLE) {
+            AddVehicleScreen(vehicleViewModel, navController = navController)
+        }
         composable(Routes.SELECT_USERS) {
             SelectUsersScreen(chatViewModel, navController = navController)
         }
@@ -80,7 +99,11 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
             )
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")
-            ProfileDetailScreen(userId = userId.toString(), profileViewModel)
+            ProfileDetailScreen(
+                userId = userId.toString(),
+                viewModel = profileViewModel,
+                navController = navController
+            )
         }
         composable(Routes.CHATS) {
             ChatListScreen(navController, onChatClick = { chatId ->
@@ -96,13 +119,14 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         }
     }
 }
+
 @Composable
 fun AppNavHost(navController: NavHostController) {
     val authViewModel = hiltViewModel<AuthViewModel>()
     val communityViewModel = hiltViewModel<CommunityViewModel>()
     NavHost(navController = navController, startDestination = Routes.START) {
         composable(Routes.START) {
-            StartScreen(navController,authViewModel)
+            StartScreen(navController, authViewModel)
         }
         composable(Routes.LOGIN) {
             LoginScreen(viewModel = authViewModel, navController = navController)

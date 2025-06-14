@@ -12,8 +12,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Divider
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -29,6 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.compose.material3.Icon
 import coil.compose.AsyncImage
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.data.models.Thread
@@ -41,7 +48,8 @@ import com.example.gearhubmobile.ui.components.HeartButton
 @Composable
 fun ProfileDetailScreen(
     userId: String?,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    navController: NavHostController
 ) {
     LaunchedEffect(Unit) {
         if (userId == "null") {
@@ -61,81 +69,91 @@ fun ProfileDetailScreen(
     )
 
     val scrollState = rememberScrollState()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        AsyncImage(
-            model = "http://vms.iesluisvives.org:25003" + profile?.profilePicture,
-            contentDescription = "Foto de perfil",
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = {
+                navController.navigate("vehicles")
+            }) {
+                Icon(Icons.Default.Build, contentDescription = "Mis coches")
+            }
+        }
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-        )
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(16.dp)
+                .padding(padding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AsyncImage(
+                model = "http://vms.iesluisvives.org:25003" + profile?.profilePicture,
+                contentDescription = "Foto de perfil",
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        if (profile != null) {
-            Text(profile.name, style = MaterialTheme.typography.headlineSmall)
-            Text(profile.description, style = MaterialTheme.typography.bodyMedium)
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-
-        TabRow(selectedTabIndex = selectedTab.value) {
-            tabTitles.forEachIndexed { index, title ->
-                Tab(
-                    selected = selectedTab.value == index,
-                    onClick = { selectedTab.value = index },
-                    text = { Text(title, fontSize = 12.sp) }
-                )
+            if (profile != null) {
+                Text(profile.name, style = MaterialTheme.typography.headlineSmall)
+                Text(profile.description, style = MaterialTheme.typography.bodyMedium)
             }
-        }
+            Spacer(modifier = Modifier.height(24.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            TabRow(selectedTabIndex = selectedTab.value) {
+                tabTitles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab.value == index,
+                        onClick = { selectedTab.value = index },
+                        text = { Text(title, fontSize = 12.sp) }
+                    )
+                }
+            }
 
-        LaunchedEffect(profile, selectedTab.intValue) {
-            profile?.let {
-                when (selectedTab.intValue) {
-                    0 -> {
-                        isThread.value = true
-                        viewModel.getPostsByLikes(it.userId)
-                    }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    1 -> {
-                        isThread.value = true
-                        viewModel.getPostsByCreator(it.userId)
-                    }
+            LaunchedEffect(profile, selectedTab.intValue) {
+                profile?.let {
+                    when (selectedTab.intValue) {
+                        0 -> {
+                            isThread.value = true
+                            viewModel.getPostsByLikes(it.userId)
+                        }
 
-                    2 -> {
-                        isThread.value = false
-                        viewModel.getResponsesByLikes(it.userId)
-                    }
+                        1 -> {
+                            isThread.value = true
+                            viewModel.getPostsByCreator(it.userId)
+                        }
 
-                    3 -> {
-                        isThread.value = false
-                        viewModel.getResponsesByCreator(it.userId)
+                        2 -> {
+                            isThread.value = false
+                            viewModel.getResponsesByLikes(it.userId)
+                        }
+
+                        3 -> {
+                            isThread.value = false
+                            viewModel.getResponsesByCreator(it.userId)
+                        }
                     }
                 }
             }
-        }
-        if (profile == null) {
-            Text("Cargando perfil...", style = MaterialTheme.typography.bodyMedium)
-        } else {
-            if (isThread.value) {
-                if (viewModel.threads.isNullOrEmpty()) {
-                    Text("No hay posts.", style = MaterialTheme.typography.bodyMedium)
-                } else {
-                    PostList(viewModel.threads)
-                }
+            if (profile == null) {
+                Text("Cargando perfil...", style = MaterialTheme.typography.bodyMedium)
             } else {
-                if (viewModel.responses.isNullOrEmpty()) {
-                    Text("No hay respuestas.", style = MaterialTheme.typography.bodyMedium)
+                if (isThread.value) {
+                    if (viewModel.threads.isNullOrEmpty()) {
+                        Text("No hay posts.", style = MaterialTheme.typography.bodyMedium)
+                    } else {
+                        PostList(viewModel.threads)
+                    }
                 } else {
-                    ResponseList(viewModel.responses,viewModel)
+                    if (viewModel.responses.isNullOrEmpty()) {
+                        Text("No hay respuestas.", style = MaterialTheme.typography.bodyMedium)
+                    } else {
+                        ResponseList(viewModel.responses, viewModel)
+                    }
                 }
             }
         }
