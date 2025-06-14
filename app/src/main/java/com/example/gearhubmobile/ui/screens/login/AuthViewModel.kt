@@ -76,16 +76,15 @@ class AuthViewModel @Inject constructor(
     }
 
     suspend fun checkUserStatus(): String {
-        Log.d("erase", sessionManager.getUserId().toString())
         val result = userRepository.getUserById(sessionManager.getUserId().toString())
-        if (result.isSuccess) {
-            return "OK"
+        return if (result.isSuccess) {
+            "OK"
         } else if (result.exceptionOrNull()?.message == "NOT_FOUND") {
-            return "NOT_FOUND"
+            "NOT_FOUND"
         } else if (result.exceptionOrNull()?.message == "UNAUTHORIZED") {
-            return "UNAUTHORIZED"
+            "UNAUTHORIZED"
         } else {
-            return "UNKNOWN"
+            "UNKNOWN"
         }
     }
 

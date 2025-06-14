@@ -60,7 +60,7 @@ fun LoginScreen(
 
     LaunchedEffect(result) {
         if (result?.isSuccess == true) {
-            navController.navigate(Routes.MAIN)
+            navController.navigate(Routes.START)
         }
     }
 
@@ -128,7 +128,7 @@ fun LoginScreen(
             }
 
             result?.isSuccess == true -> {
-                navController.navigate(Routes.START)
+                navController.popBackStack()
             }
 
             result?.isFailure == true -> {
