@@ -115,4 +115,9 @@ object RetrofitInstance {
     fun provideReviewApi(retrofit: Retrofit): ReviewApi {
         return retrofit.create(ReviewApi::class.java)
     }
+    @Provides
+    @Singleton
+    fun provideVehiclesApi(retrofit: Retrofit): VehiclesApi {
+        return retrofit.create(VehiclesApi::class.java)
+    }
 }
