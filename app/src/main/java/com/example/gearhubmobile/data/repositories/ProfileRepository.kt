@@ -28,7 +28,7 @@ class ProfileRepository @Inject constructor(private val api: ProfileApi) {
     ) : Response<Unit>{
 
 
-        return api.createUser(
+        return api.createCommunity(
             name = name,
             username = username,
             description = description,

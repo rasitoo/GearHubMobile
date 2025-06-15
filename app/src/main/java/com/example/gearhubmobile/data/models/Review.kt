@@ -34,9 +34,8 @@ data class ReviewResponseDto(
 )
 
 data class CreateReviewResponseRequest(
-    val content: String,
-    val creatorId: String,
-    val threadId: String
+    val message: String,
+    val reviewId: String
 )
 
 data class UpdateReviewResponseRequest(

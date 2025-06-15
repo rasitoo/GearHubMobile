@@ -49,14 +49,16 @@ fun VehiclesScreen(
     LaunchedEffect(Unit) {
         viewModel.loadVehicles(userId)
         viewModel.getUser(userId)
+        viewModel.getCurrentData()
     }
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                navController.navigate(Routes.ADD_VEHICLE)
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Añadir coche")
-            }
+            if (userId == viewModel.currentId)
+                FloatingActionButton(onClick = {
+                    navController.navigate(Routes.ADD_VEHICLE)
+                }) {
+                    Icon(Icons.Default.Add, contentDescription = "Añadir coche")
+                }
         }
     ) { padding ->
         Column(

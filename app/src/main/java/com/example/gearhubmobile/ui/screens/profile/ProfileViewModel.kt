@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.data.models.User
-import com.example.gearhubmobile.data.models.UserReduction
 import com.example.gearhubmobile.data.repositories.ProfileRepository
 import com.example.gearhubmobile.data.repositories.ResponseRepository
 import com.example.gearhubmobile.data.repositories.ThreadRepository

@@ -50,10 +50,9 @@ class ReviewRepository @Inject constructor(private val api: ReviewApi) {
 
     suspend fun createResponse(
         content: String,
-        creatorId: String,
-        threadId: String,
+        reviewId: String
     ): Response<Unit> {
-        val reviewRequest = CreateReviewResponseRequest(content, creatorId, threadId)
+        val reviewRequest = CreateReviewResponseRequest(content, reviewId)
 
         return api.createResponse(reviewRequest)
     }

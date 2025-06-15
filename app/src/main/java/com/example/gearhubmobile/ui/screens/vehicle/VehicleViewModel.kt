@@ -31,6 +31,13 @@ class VehicleViewModel @Inject constructor(
     var errorMessage by mutableStateOf<String?>(null)
     var isLoading by mutableStateOf(false)
 
+    var currentIsWorkshop by mutableStateOf(false)
+    var currentId by mutableStateOf<String?>(null)
+
+    suspend fun getCurrentData() {
+        currentIsWorkshop = sessionManager.getUserType() == 2
+        currentId = sessionManager.getUserId()
+    }
 
     fun getUser(id: String?) {
         viewModelScope.launch {

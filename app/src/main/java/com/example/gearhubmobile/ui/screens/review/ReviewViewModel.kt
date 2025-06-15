@@ -27,19 +27,21 @@ class ReviewViewModel @Inject constructor(
 
     var user by mutableStateOf<User?>(null)
     val reviews = mutableStateListOf<Review>()
+    var currentIsWorkshop by mutableStateOf(false)
+    var currentId by mutableStateOf<String?>(null)
     var errorMessage by mutableStateOf<String?>(null)
     var isLoading by mutableStateOf(false)
     var userReviews by mutableStateOf<Map<String, String?>>(emptyMap())
 
 
     suspend fun loadReviews(id: String?) {
-        if (id == null) return
+        if (id == null && !currentIsWorkshop) return
         isLoading = true
         errorMessage = null
         reviews.clear()
 
         try {
-            val result = reviewRepository.getReviewsByWorkshop(id)
+            val result = reviewRepository.getReviewsByWorkshop((id ?: currentId).toString())
             reviews.addAll(result)
 
             userReviews = reviews.mapNotNull { review ->
@@ -58,6 +60,21 @@ class ReviewViewModel @Inject constructor(
 
     }
 
+    suspend fun getCurrentData() {
+        currentIsWorkshop = sessionManager.getUserType() == 2
+        currentId = sessionManager.getUserId()
+    }
+
+suspend fun responder(id: String, responseText: String) {
+    try {
+        val result = reviewRepository.createResponse(responseText, id)
+        if (!result.isSuccessful) {
+            errorMessage = result.message()
+        }
+    } catch (e: Exception) {
+        errorMessage = "Error al responder reseña"
+    }
+}
     suspend fun addReview(id: String, rating: Int, comment: String) {
         isLoading = true
         errorMessage = null

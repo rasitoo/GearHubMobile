@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -20,8 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.gearhubmobile.data.models.User
 import com.example.gearhubmobile.ui.navigation.Routes
+import kotlinx.coroutines.launch
 
 /**
  * @author Rodrigo
@@ -35,22 +36,26 @@ fun ReviewsScreen(
     navController: NavHostController
 ) {
     LaunchedEffect(Unit) {
-        viewModel.loadReviews(userId)
-        viewModel.getUser(userId)
+        viewModel.getCurrentData()
+        viewModel.loadReviews(userId ?: viewModel.currentId)
+        viewModel.getUser(userId ?: viewModel.currentId)
     }
     val reviews = viewModel.reviews
     val user = viewModel.user
+    val coroutineScope = rememberCoroutineScope()
+
 
     val totalReviews = reviews.size
     val averageRating = if (totalReviews > 0) reviews.map { it.rating }.average() else 0.0
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                navController.navigate(Routes.ADD_REVIEW)
-            }) {
-                Icon(Icons.Default.Add, contentDescription = "Añadir reseña")
-            }
+            if (!viewModel.currentIsWorkshop)
+                FloatingActionButton(onClick = {
+                    navController.navigate(Routes.ADD_REVIEW)
+                }) {
+                    Icon(Icons.Default.Add, contentDescription = "Añadir reseña")
+                }
         }
     ) { padding ->
         Column(
@@ -120,13 +125,42 @@ fun ReviewsScreen(
                                             modifier = Modifier.padding(8.dp)
                                         )
                                     }
+                                } else {
+                                    if (
+                                        viewModel.currentIsWorkshop && viewModel.currentId == user?.userId
+                                    ) {
+                                        var responseText by rememberSaveable(review.id) {
+                                            mutableStateOf(
+                                                ""
+                                            )
+                                        }
+                                        OutlinedTextField(
+                                            value = responseText,
+                                            onValueChange = { responseText = it },
+                                            label = { Text("Responder a la reseña") },
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Button(
+                                            onClick = {
+                                                coroutineScope.launch {
+                                                    viewModel.responder(review.id, responseText)
+                                                    responseText = ""
+                                                    viewModel.loadReviews(viewModel.currentId)
+                                                }
+                                            },
+                                            enabled = responseText.isNotBlank()
+                                        ) {
+                                            Text("Responder")
+                                        }
+                                    }
                                 }
-                                    val userRev = viewModel.userReviews[review.userId] ?: review.userId
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        "Por $userRev",
-                                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
-                                    )
+                                val userRev = viewModel.userReviews[review.userId] ?: review.userId
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    "Por $userRev",
+                                    style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                                )
 
                             }
                         }
