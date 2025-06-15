@@ -2,9 +2,10 @@ package com.example.gearhubmobile.data.repositories
 
 import com.example.gearhubmobile.data.apirest.CommunityApi
 import com.example.gearhubmobile.data.models.Community
-import com.example.gearhubmobile.data.models.CommunityCreateDTO
 import com.example.gearhubmobile.data.models.CommunityDto
 import com.example.gearhubmobile.data.models.CommunityUpdateDTO
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -23,13 +24,13 @@ class CommunityRepository @Inject constructor(private val api: CommunityApi) {
     }
 
     suspend fun createCommunity(
-        comName: String,
-        comDesc: String,
-        profileImg: String,
-        bannerImg: String
+        comName: RequestBody,
+        comDesc: RequestBody,
+        profileImg: MultipartBody.Part?,
+        bannerImg: MultipartBody.Part?
     ): Response<Unit> {
-        val communityRequest = CommunityCreateDTO(comName, comDesc, profileImg, bannerImg)
-        return api.createCommunity(communityRequest)
+        return api.createCommunity(comName, comDesc, profileImg, bannerImg)
+
     }
 
     suspend fun getCommunitiesByCreator(creatorID: String): List<Community> {

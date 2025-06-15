@@ -5,15 +5,18 @@ package com.example.gearhubmobile.data.apirest
  * @date 21 mayo, 2025
  */
 import com.example.gearhubmobile.data.models.Community
-import com.example.gearhubmobile.data.models.CommunityCreateDTO
 import com.example.gearhubmobile.data.models.CommunityResponse
 import com.example.gearhubmobile.data.models.CommunityUpdateDTO
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface CommunityApi {
@@ -27,8 +30,15 @@ interface CommunityApi {
     @GET("api/Community/bysubscrition")
     suspend fun getSubscribedCommunities(): List<Community>
 
+    @Multipart
     @POST("api/Community")
-    suspend fun createCommunity(@Body community: CommunityCreateDTO): Response<Unit>
+    suspend fun createCommunity(
+        @Part("ComName") name: RequestBody,
+        @Part("ComDescription") username: RequestBody,
+        @Part profileImage: MultipartBody.Part?,
+        @Part bannerImage: MultipartBody.Part?
+    ): Response<Unit>
+
 
     @PUT("api/Community")
     suspend fun updateCommunity(@Body community: CommunityUpdateDTO): Response<Unit>

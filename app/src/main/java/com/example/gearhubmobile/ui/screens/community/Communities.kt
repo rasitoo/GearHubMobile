@@ -1,7 +1,11 @@
 package com.example.gearhubmobile.ui.screens.community
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,10 +20,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,7 +33,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -73,18 +83,17 @@ fun AllCommunities(viewModel: CommunityViewModel) {
 
 @Composable
 fun CommunityList(
+    communities: List<CommunityDto>,
     viewModel: CommunityViewModel,
     onCommunityClick: (CommunityDto) -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.loadCommunities()
-    }
+
     if (viewModel.isLoading) {
         CircularProgressIndicator(modifier = Modifier.padding(8.dp))
     } else {
         LazyColumn {
-            items(viewModel.communities.size) { index ->
-                val community = viewModel.communities[index]
+            items(communities.size) { index ->
+                val community = communities[index]
                 CommunityListItem(community = community, onClick = { onCommunityClick(community) })
             }
         }
@@ -254,6 +263,127 @@ fun CommunityPostItem(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text((post?.likes ?: 0).toString())
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreateCommunityScreen(
+    viewModel: CommunityViewModel,
+    navController: NavHostController
+) {
+    var name by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
+    var profileImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var bannerImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var isLoading by rememberSaveable { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    val profileImagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri -> profileImageUri = uri }
+
+    val bannerImagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri -> bannerImageUri = uri }
+
+    if (viewModel.comCreated) {
+        LaunchedEffect(Unit) {
+            navController.popBackStack()
+            viewModel.loadCommunities()
+            viewModel.comCreated = false
+        }
+    }
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text("Nombre de la comunidad") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        OutlinedTextField(
+            value = description,
+            onValueChange = { description = it },
+            label = { Text("Descripción") },
+            modifier = Modifier.fillMaxWidth(),
+            maxLines = 4
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Imagen de perfil")
+                IconButton(onClick = { profileImagePicker.launch("image/*") }) {
+                    Icon(
+                        Icons.Default.AddCircle,
+                        contentDescription = "Seleccionar imagen de perfil"
+                    )
+                }
+                profileImageUri?.let { uri ->
+                    AsyncImage(
+                        model = uri,
+                        contentDescription = "Imagen de perfil seleccionada",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                    )
+                }
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Banner")
+                IconButton(onClick = { bannerImagePicker.launch("image/*") }) {
+                    Icon(Icons.Default.AddCircle, contentDescription = "Seleccionar banner")
+                }
+                bannerImageUri?.let {
+                    AsyncImage(
+                        model = it,
+                        contentDescription = "Banner seleccionado",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(MaterialTheme.shapes.medium)
+                    )
+                }}}
+        Spacer(modifier = Modifier.height(24.dp))
+        viewModel.errorMessage?.let {
+            Text(it, color = MaterialTheme.colorScheme.error)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        Button(
+            onClick = {
+                if (name.isBlank() || description.isBlank()) {
+                    viewModel.errorMessage = "Rellena todos los campos"
+                    return@Button
+                }
+                isLoading = true
+                viewModel.createCommunity(
+                    name,
+                    description,
+                    profileImageUri,
+                    bannerImageUri,
+                    context
+                )
+            },
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Crear comunidad")
+        }
+        if (isLoading) {
+            Spacer(modifier = Modifier.height(16.dp))
+            CircularProgressIndicator()
         }
     }
 }

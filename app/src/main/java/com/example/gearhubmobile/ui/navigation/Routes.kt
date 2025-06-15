@@ -17,6 +17,7 @@ object Routes {
     const val COMMUNITIES = "communities"
     const val COMMUNITY_DETAIL = "communityDetail/{communityId}"
     const val COMMUNITY_DETAIL_BASE = "communityDetail"
+    const val CREATE_COMMUNITY = "community_create"
 
     const val POST = "post"
     const val POST_DETAIL = "post_detail"

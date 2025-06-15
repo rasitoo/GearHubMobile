@@ -17,6 +17,7 @@ import com.example.gearhubmobile.ui.screens.chat.CreateChatScreen
 import com.example.gearhubmobile.ui.screens.chat.SelectUsersScreen
 import com.example.gearhubmobile.ui.screens.community.CommunityDetailScreen
 import com.example.gearhubmobile.ui.screens.community.CommunityViewModel
+import com.example.gearhubmobile.ui.screens.community.CreateCommunityScreen
 import com.example.gearhubmobile.ui.screens.home.HomeScreen
 import com.example.gearhubmobile.ui.screens.home.HomeViewModel
 import com.example.gearhubmobile.ui.screens.home.PlaceholderScreen
@@ -119,6 +120,9 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         }
         composable(Routes.POST) {
             CreatePostScreen(viewModel = postViewModel, navController = navController)
+        }
+        composable(Routes.CREATE_COMMUNITY) {
+            CreateCommunityScreen(viewModel = communityViewModel, navController = navController)
         }
         composable(
             route = Routes.USER_DETAIL,

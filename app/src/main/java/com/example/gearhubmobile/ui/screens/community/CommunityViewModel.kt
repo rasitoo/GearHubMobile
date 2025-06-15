@@ -1,5 +1,8 @@
 package com.example.gearhubmobile.ui.screens.community
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,8 +13,12 @@ import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.data.models.CommunityDto
 import com.example.gearhubmobile.data.repositories.CommunityRepository
 import com.example.gearhubmobile.data.repositories.ThreadRepository
+import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 /**
@@ -21,19 +28,40 @@ import javax.inject.Inject
 @HiltViewModel
 class CommunityViewModel @Inject constructor(
     private val repository: CommunityRepository,
-    private val threadRepository: ThreadRepository
+    private val threadRepository: ThreadRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
     var communities by mutableStateOf<List<CommunityDto>>(emptyList())
+    var myCommunities by mutableStateOf<List<CommunityDto>>(emptyList())
     var community = mutableStateOf<Community?>(null)
     var communityPosts = mutableStateOf<List<Thread>>(emptyList())
     var likesState by mutableStateOf<Map<String, Boolean>>(emptyMap())
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
+    var comCreated by mutableStateOf(false)
+
+
+    var currentIsWorkshop by mutableStateOf(false)
+    var currentId by mutableStateOf<String?>(null)
+
+    suspend fun getCurrentData() {
+        currentIsWorkshop = sessionManager.getUserType() == 2
+        currentId = sessionManager.getUserId()
+    }
 
     fun loadCommunities() {
         viewModelScope.launch {
             isLoading = true
             try {
+                val temp = repository.getAllCommunities()
+                var com: Community
+                temp.forEach { community ->
+                    com = repository.getCommunityById(id = community.id)
+                    if (com.creatorId == currentId)
+                        myCommunities + com
+                    else
+                        communities + com
+                }
                 communities = repository.getAllCommunities()
             } catch (e: Exception) {
                 errorMessage = e.message
@@ -44,25 +72,90 @@ class CommunityViewModel @Inject constructor(
     }
 
 
-
     fun loadCommunity(id: String) {
         viewModelScope.launch {
             isLoading = true
             try {
                 community.value = repository.getCommunityById(id)
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+            }
             isLoading = false
         }
+    }
+
+    fun createCommunity(
+        ComName: String,
+        ComDesc: String,
+        profileImage: Uri?,
+        bannerImage: Uri?,
+        context: Context
+    ) {
+        errorMessage = when {
+            ComName.isBlank() -> "Por favor, introduce el nombre de la comunidad."
+            ComDesc.isBlank() -> "Por favor, introduce la descripcion de la comunidad."
+            else -> null
+        }
+        if (errorMessage != null) return
+
+        val profileImagePart = createImagePart(context, profileImage, "profileImage")
+        val bannerImagePart = createImagePart(context, bannerImage, "bannerImage")
+
+        viewModelScope.launch {
+            val result = repository.createCommunity(
+                ComName.toRequestBody(),
+                ComDesc.toRequestBody(),
+                profileImagePart,
+                bannerImagePart,
+            )
+            comCreated = result.isSuccessful
+            if (!result.isSuccessful) {
+                errorMessage = result.message() ?: "Error al crear la comunidad"
+            }
+        }
+    }
+
+    fun createImagePart(context: Context, imageUri: Uri?, partName: String): MultipartBody.Part? {
+        if (imageUri == null) return null
+        val contentResolver = context.contentResolver
+        val mimeType = contentResolver.getType(imageUri) ?: "image/*"
+        val fileName = getFileNameFromUri(context, imageUri)
+        val inputStream = contentResolver.openInputStream(imageUri)
+        val bytes = inputStream?.readBytes()
+        inputStream?.close()
+        val requestFile = bytes?.toRequestBody(mimeType.toMediaTypeOrNull())
+        return requestFile?.let {
+            MultipartBody.Part.createFormData(partName, fileName, it)
+        }
+    }
+
+    fun getFileNameFromUri(context: Context, uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index >= 0) result = it.getString(index)
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.lastPathSegment?.substringAfterLast('/')
+        }
+        return result ?: (System.currentTimeMillis().toString() + ".png")
     }
 
     fun loadPosts(communityId: String) {
         viewModelScope.launch {
             try {
                 communityPosts.value = threadRepository.getThreadsByCommunity(communityId).data
-            } catch (_: Exception) { }
+            } catch (_: Exception) {
+            }
         }
     }
 
-    fun toggleLike(string: String)  {}
-    fun postHasLike(string: String?): Boolean {return false}
+    fun toggleLike(string: String) {}
+    fun postHasLike(string: String?): Boolean {
+        return false
+    }
 }

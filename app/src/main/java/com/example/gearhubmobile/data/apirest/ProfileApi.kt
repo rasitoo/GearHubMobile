@@ -22,7 +22,7 @@ interface ProfileApi {
 
     @Multipart
     @POST("api/UserProfile/UserCreate")
-    suspend fun createUser(
+    suspend fun createCommunity(
         @Part("Name") name: RequestBody,
         @Part("UserName") username: RequestBody,
         @Part("Description") description: RequestBody,
