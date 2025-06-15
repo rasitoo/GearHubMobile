@@ -6,10 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
@@ -19,6 +22,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
@@ -26,6 +30,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,6 +43,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.gearhubmobile.ui.navigation.AppNavHost
 import com.example.gearhubmobile.ui.navigation.MainNavHost
@@ -98,13 +104,16 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
         Scaffold(
             topBar = {
                 TopAppBar(
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    ), modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
                     title = {
                         Image(
                             painter = painterResource(id = R.drawable.logo_name),
                             contentDescription = "Logo Gearhub",
                             modifier = Modifier
                                 .height(40.dp)
-                                .width(80.dp),
+                                .width(95.dp),
                             contentScale = ContentScale.Crop
                         )
                     },
@@ -114,17 +123,20 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
                         }
                     },
                     actions = {
-                        IconButton(onClick = { navController.navigate(Routes.USER_DETAIL_BASE +"/null") }) {
+                        IconButton(onClick = { navController.navigate(Routes.USER_DETAIL_BASE + "/null") }) {
                             Icon(Icons.Default.AccountCircle, contentDescription = "Perfil")
                         }
                     }
                 )
             },
             bottomBar = {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+
                 NavigationBar {
                     bottomItems.forEach { screen ->
                         NavigationBarItem(
-                            selected = navController.currentDestination?.route == screen.route,
+                            selected = currentRoute == screen.route,
                             onClick = {
                                 navController.navigate(screen.route) {
                                     popUpTo(navController.graph.startDestinationId)
@@ -139,8 +151,7 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
                             },
                             label = { Text(screen.label) }
                         )
-                    }
-                }
+                    }}
             }
         )
         { innerPadding ->

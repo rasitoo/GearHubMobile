@@ -25,10 +25,10 @@ class ProfileRepository @Inject constructor(private val api: ProfileApi) {
         description: RequestBody,
         address: RequestBody,
         profilePictureUri: MultipartBody.Part?
-    ) {
+    ) : Response<Unit>{
 
 
-        api.createUser(
+        return api.createUser(
             name = name,
             username = username,
             description = description,

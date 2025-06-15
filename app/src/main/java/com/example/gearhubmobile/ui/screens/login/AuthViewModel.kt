@@ -19,10 +19,6 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
-/**
- * @author Rodrigo
- * @date 25 mayo, 2025
- */
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepository,
@@ -31,9 +27,9 @@ class AuthViewModel @Inject constructor(
 ) : ViewModel() {
     var name = ""
     val token = sessionManager.token
-
+    var userCreated by mutableStateOf(false)
     var loginResult by mutableStateOf<Result<LoginResponse>?>(null)
-
+    var imageError by mutableStateOf<String?>(null)
     var isLoading by mutableStateOf(false)
 
     fun login(email: String, password: String) {
@@ -89,28 +85,39 @@ class AuthViewModel @Inject constructor(
         profilePictureUri: Uri?,
         context: Context
     ) {
+        imageError = when {
+            name.isBlank() -> "Por favor, introduce tu nombre."
+            username.isBlank() -> "Por favor, introduce un nombre de usuario."
+            description.isBlank() -> "Por favor, introduce una descripción."
+            address.isBlank() -> "Por favor, introduce una dirección."
+            profilePictureUri == null -> "Por favor, añade una imagen de perfil."
+            else -> null
+        }
+        if (imageError != null) return
+
         val contentResolver = context.contentResolver
         val mimeType = contentResolver.getType(profilePictureUri!!) ?: "image/*"
         val fileName = getFileNameFromUri(context, profilePictureUri)
-
         val inputStream = contentResolver.openInputStream(profilePictureUri)
         val bytes = inputStream?.readBytes()
         inputStream?.close()
-
         val requestFile = bytes?.toRequestBody(mimeType.toMediaTypeOrNull())
-
         val picturePart = requestFile?.let {
             MultipartBody.Part.createFormData("profilePicture", fileName, it)
         }
 
         viewModelScope.launch {
-            userRepository.createUserProfile(
+            val result = userRepository.createUserProfile(
                 name.toRequestBody(),
                 username.toRequestBody(),
                 description.toRequestBody(),
                 address.toRequestBody(),
                 picturePart
             )
+            userCreated = result.isSuccessful
+            if (!result.isSuccessful) {
+                imageError = result.message() ?: "Error al crear usuario"
+            }
         }
     }
 
@@ -130,5 +137,4 @@ class AuthViewModel @Inject constructor(
         }
         return result ?: (System.currentTimeMillis().toString() + ".png")
     }
-
 }

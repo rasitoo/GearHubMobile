@@ -16,7 +16,7 @@ import javax.inject.Inject
 class MessageRepository @Inject constructor(private val api: MessageApi) {
     private lateinit var hubConnection: HubConnection
 
-    suspend fun connect(
+    fun connect(
         chatId: String,
         onReceive: (Message) -> Unit,
         onUpdate: (Message) -> Unit,

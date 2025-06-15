@@ -121,7 +121,7 @@ fun ReviewsScreen(
                                         )
                                     }
                                 }
-                                val userRev = viewModel.userReviews[review.userId] ?: review.userId
+                                    val userRev = viewModel.userReviews[review.userId] ?: review.userId
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         "Por $userRev",

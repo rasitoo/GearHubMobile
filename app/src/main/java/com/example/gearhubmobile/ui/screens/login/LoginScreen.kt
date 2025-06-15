@@ -71,8 +71,11 @@ fun LoginScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Iniciar sesión", style = MaterialTheme.typography.headlineMedium)
-
+        Text(
+            "Iniciar sesión",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
@@ -161,7 +164,11 @@ fun RegisterScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Registro", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            "Registro",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
@@ -204,7 +211,10 @@ fun RegisterScreen(
                 onCheckedChange = { isWorkshop = it }
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("¿Eres un taller?")
+            Text(
+                "¿Eres un taller?",
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -280,7 +290,13 @@ fun CreateUserScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Crear usuario", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            "Crear usuario",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
@@ -344,18 +360,33 @@ fun CreateUserScreen(
                     address,
                     profilePictureUri, context
                 )
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Routes.HOME)
-                }
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !isLoading
         ) {
             Text("Crear usuario")
         }
+
+        val imageError = viewModel.imageError
+        val userCreated = viewModel.userCreated
+
+
+        if (imageError != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = imageError,
+                color = Color.Red,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        LaunchedEffect(userCreated) {
+            if (viewModel.userCreated) {
+                navController.navigate(Routes.START)
+            }
+        }
     }
 }
-
 
 @Composable
 fun RecoverScreen(
@@ -375,7 +406,11 @@ fun RecoverScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text("Rcuperar contraseña", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            "Rcuperar contraseña",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
         Spacer(modifier = Modifier.height(24.dp))
 
         OutlinedTextField(
