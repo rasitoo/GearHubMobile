@@ -1,5 +1,6 @@
 package com.example.gearhubmobile.ui.screens.profile
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -29,19 +31,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.data.models.Thread
+import com.example.gearhubmobile.data.models.User
 import com.example.gearhubmobile.ui.components.HeartButton
+import com.example.gearhubmobile.ui.navigation.Routes
 
 /**
  * @author Rodrigo
@@ -73,10 +77,18 @@ fun ProfileDetailScreen(
     val scrollState = rememberScrollState()
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                navController.navigate("vehicles")
-            }) {
-                Icon(Icons.Default.Build, contentDescription = "Mis coches")
+            if (profile?.type == 1) {
+                FloatingActionButton(onClick = {
+                    navController.navigate("${Routes.VEHICLES}/$userId")
+                }) {
+                    Icon(Icons.Default.Build, contentDescription = "Mis coches")
+                }
+            } else {
+                FloatingActionButton(onClick = {
+                    navController.navigate("${Routes.REVIEWS}/$userId")
+                }) {
+                    Icon(Icons.Default.Favorite, contentDescription = "Reseñas")
+                }
             }
         }
     ) { padding ->
@@ -234,4 +246,69 @@ fun ResponseList(responses: List<ResponseDTO>?, viewModel: ProfileViewModel) {
     }
 }
 
+@Composable
+fun UserListScreen(
+    viewModel: ProfileViewModel,
+    onUserClick: (User) -> Unit = {}
+) {
+    LaunchedEffect(Unit) {
+        viewModel.getUsers()
+    }
+    var searchText by remember { mutableStateOf("") }
+    val users = viewModel.users ?: emptyList()
+    val filteredUsers = users.filter {
+        it.userName.contains(searchText, ignoreCase = true)
+    }
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        OutlinedTextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+            label = { Text("Buscar usuario") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        androidx.compose.foundation.lazy.LazyColumn {
+            filteredUsers.forEach { user ->
+                item {
+                    androidx.compose.material3.Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable { onUserClick(user) }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            coil.compose.AsyncImage(
+                                model = "http://vms.iesluisvives.org:25003" + user.profilePicture,
+                                contentDescription = "Foto de perfil",
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(CircleShape)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    user.userName,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    if (user.type == 2) "Taller" else "Usuario",
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

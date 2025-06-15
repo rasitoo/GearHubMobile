@@ -73,13 +73,15 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
     val scope = rememberCoroutineScope()
 
     val bottomItems = listOf(
-        Screen.Home, Screen.Communities, Screen.Post, Screen.Chats
+        Screen.Home, Screen.Users, Screen.Post, Screen.Chats
     )
 
     ModalNavigationDrawer(
+
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet() {
+
                 Text("Menú comunidades", modifier = Modifier.padding(16.dp))
                 Divider()
                 Text("Mis comunidades", modifier = Modifier.padding(16.dp))
@@ -112,7 +114,7 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
                         }
                     },
                     actions = {
-                        IconButton(onClick = { navController.navigate(Routes.USER_DETAIL_BASE) }) {
+                        IconButton(onClick = { navController.navigate(Routes.USER_DETAIL_BASE +"/null") }) {
                             Icon(Icons.Default.AccountCircle, contentDescription = "Perfil")
                         }
                     }

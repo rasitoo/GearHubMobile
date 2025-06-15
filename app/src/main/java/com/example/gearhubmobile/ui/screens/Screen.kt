@@ -14,7 +14,7 @@ import com.example.gearhubmobile.ui.navigation.Routes
  */
 sealed class Screen(val route: String, val icon: ImageVector, val label: String) {
     object Home : Screen(Routes.HOME, Icons.Default.Home, "Inicio")
-    object Communities : Screen(Routes.COMMUNITIES, Icons.Default.Person, "Comunidades")
+    object Users : Screen(Routes.USERS, Icons.Default.Person, "Usuarios")
     object Post : Screen(Routes.POST, Icons.Default.AddCircle, "Publicar")
     object Chats : Screen(Routes.CHATS, Icons.Default.Email, "Chats")
 }

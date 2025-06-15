@@ -25,12 +25,18 @@ object Routes {
     const val CHAT_DETAIL_BASE = "chatDetail"
     const val CHATS = "chats"
 
-    const val USER_DETAIL = "userDetail?userId={userId}"
+    const val USER_DETAIL = "userDetail/{userId}"
     const val USER_DETAIL_BASE = "userDetail"
+    const val USERS = "users"
 
     const val CREATE_CHAT = "createChat"
     const val SELECT_USERS = "usersList"
 
     const val VEHICLES = "vehicles"
+    const val VEHICLES_DETAIL = "vehicles/{userId}"
     const val ADD_VEHICLE = "add_vehicle"
+
+    const val REVIEWS = "reviews"
+    const val REVIEWS_DETAIL = "reviews/{userId}"
+    const val ADD_REVIEW = "add_review"
 }

@@ -31,6 +31,10 @@ import com.example.gearhubmobile.ui.screens.post.CreatePostScreen
 import com.example.gearhubmobile.ui.screens.post.PostViewModel
 import com.example.gearhubmobile.ui.screens.profile.ProfileDetailScreen
 import com.example.gearhubmobile.ui.screens.profile.ProfileViewModel
+import com.example.gearhubmobile.ui.screens.profile.UserListScreen
+import com.example.gearhubmobile.ui.screens.review.AddReviewScreen
+import com.example.gearhubmobile.ui.screens.review.ReviewViewModel
+import com.example.gearhubmobile.ui.screens.review.ReviewsScreen
 import com.example.gearhubmobile.ui.screens.vehicle.AddVehicleScreen
 import com.example.gearhubmobile.ui.screens.vehicle.VehicleViewModel
 import com.example.gearhubmobile.ui.screens.vehicle.VehiclesScreen
@@ -49,6 +53,7 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
     val postViewModel = hiltViewModel<PostViewModel>()
     val profileViewModel = hiltViewModel<ProfileViewModel>()
     val vehicleViewModel = hiltViewModel<VehicleViewModel>()
+    val reviewViewModel = hiltViewModel<ReviewViewModel>()
     NavHost(
         navController = navController, startDestination = Routes.HOME, modifier = modifier
     ) {
@@ -69,26 +74,45 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
                 navController = navController
             )
         }
-        composable(Routes.POST) {
-            PlaceholderScreen("Publicar")
+        composable(Routes.USERS) {
+            UserListScreen(
+                viewModel = profileViewModel,
+                onUserClick = { user ->
+                    navController.navigate("${Routes.USER_DETAIL_BASE}/${user.userId}")
+                }
+            )
         }
 
         composable(Routes.CREATE_CHAT) {
             CreateChatScreen(chatViewModel, navController = navController)
         }
         composable(
-            route = Routes.VEHICLES, arguments = listOf(
-            navArgument("userId") {
-                type = NavType.StringType
-                defaultValue = null
-                nullable = true
-            }
-        )) { backStackEntry ->
+            route = Routes.VEHICLES_DETAIL, arguments = listOf(
+                navArgument("userId") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                }
+            )) { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId")
             VehiclesScreen(userId, vehicleViewModel, navController = navController)
         }
         composable(Routes.ADD_VEHICLE) {
             AddVehicleScreen(vehicleViewModel, navController = navController)
+        }
+        composable(
+            route = Routes.REVIEWS_DETAIL, arguments = listOf(
+                navArgument("userId") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                }
+            )) { backStackEntry ->
+            val userId = backStackEntry.arguments?.getString("userId")
+            ReviewsScreen(userId, reviewViewModel, navController = navController)
+        }
+        composable(Routes.ADD_REVIEW) {
+            AddReviewScreen(reviewViewModel, navController = navController)
         }
         composable(Routes.SELECT_USERS) {
             SelectUsersScreen(chatViewModel, navController = navController)

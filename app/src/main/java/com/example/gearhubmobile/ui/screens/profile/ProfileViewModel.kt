@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.data.models.User
+import com.example.gearhubmobile.data.models.UserReduction
 import com.example.gearhubmobile.data.repositories.ProfileRepository
 import com.example.gearhubmobile.data.repositories.ResponseRepository
 import com.example.gearhubmobile.data.repositories.ThreadRepository
@@ -31,6 +32,7 @@ class ProfileViewModel @Inject constructor(
     var responsesUsers by mutableStateOf<Map<String, User>>(emptyMap())
     var threads by mutableStateOf<List<Thread>?>(emptyList())
     var responses by mutableStateOf<List<ResponseDTO>?>(emptyList())
+    var users by mutableStateOf<List<User>?>(emptyList())
     var user by mutableStateOf<User?>(null)
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
@@ -67,6 +69,21 @@ class ProfileViewModel @Inject constructor(
             isLoading = true
             try {
                 threads = threadRepository.getThreadsByLikes(id).toList()
+            } catch (e: Exception) {
+                errorMessage = e.message
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+    fun getUsers() {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                val userList = repository.getAllUsers().mapNotNull { user ->
+                    repository.getUserById(user.userId).getOrNull()
+                }
+                users = userList
             } catch (e: Exception) {
                 errorMessage = e.message
             } finally {
