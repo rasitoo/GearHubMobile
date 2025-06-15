@@ -2,6 +2,7 @@ package com.example.gearhubmobile.data.repositories
 
 import com.example.gearhubmobile.data.apirest.ThreadApi
 import com.example.gearhubmobile.data.models.Thread
+import com.example.gearhubmobile.data.models.ThreadResponse
 import com.example.gearhubmobile.data.models.UpdateThreadRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -56,7 +57,7 @@ class ThreadRepository @Inject constructor(private val api: ThreadApi) {
         return api.getAllThreads()
     }
 
-    suspend fun getThreadsByCommunity(communityId: String): List<Thread> {
+    suspend fun getThreadsByCommunity(communityId: String): ThreadResponse {
         return api.getThreadsByCommunity(communityId)
     }
 

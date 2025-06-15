@@ -6,6 +6,7 @@ package com.example.gearhubmobile.data.apirest
  */
 import com.example.gearhubmobile.data.models.CreateThreadRequest
 import com.example.gearhubmobile.data.models.Thread
+import com.example.gearhubmobile.data.models.ThreadResponse
 import com.example.gearhubmobile.data.models.UpdateThreadRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -37,7 +38,7 @@ interface ThreadApi {
     suspend fun getAllThreads(): List<Thread>
 
     @GET("api/Thread/AllByComunity/{idCom}")
-    suspend fun getThreadsByCommunity(@Path("idCom") communityId: String): List<Thread>
+    suspend fun getThreadsByCommunity(@Path("idCom") communityId: String): ThreadResponse
 
     @GET("api/Thread/HasLike/{threadId}")
     suspend fun hasLikedThread(@Path("threadId") threadId: String): Boolean

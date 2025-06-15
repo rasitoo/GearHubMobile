@@ -7,6 +7,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
  * @author Rodrigo
@@ -18,16 +19,19 @@ import androidx.compose.ui.graphics.Color
 fun HeartButton(
     isLiked: Boolean,
     onToggle: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier,
+    activatedImageVector: ImageVector,
+    deactivatedImageVector: ImageVector,
+
+    ) {
     IconButton(
         onClick = onToggle,
         modifier = modifier
     ) {
         Icon(
-            imageVector = Icons.Filled.Favorite,
+            imageVector = if (isLiked) activatedImageVector else deactivatedImageVector,
             contentDescription = "Like",
-            tint = if (isLiked) Color.Red else Color.LightGray
+            tint = if (activatedImageVector == Icons.Default.Favorite) Color.Red else Color(0xFFFFCB4C)
         )
     }
 }

@@ -7,10 +7,10 @@ package com.example.gearhubmobile.data.models
  */
 data class Community(
     val id: String,
-    val name: String,
-    val picture: String?,
-    val banner: String?,
-    val description: String?,
+    val comName: String,
+    val comPicture: String?,
+    val comBanner: String?,
+    val comDescription: String?,
     val creatorId: String,
     val subscriptions: Int?
 )

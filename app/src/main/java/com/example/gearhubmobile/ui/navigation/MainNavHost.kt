@@ -15,6 +15,7 @@ import com.example.gearhubmobile.ui.screens.chat.ChatListScreen
 import com.example.gearhubmobile.ui.screens.chat.ChatViewModel
 import com.example.gearhubmobile.ui.screens.chat.CreateChatScreen
 import com.example.gearhubmobile.ui.screens.chat.SelectUsersScreen
+import com.example.gearhubmobile.ui.screens.community.CommunityDetailScreen
 import com.example.gearhubmobile.ui.screens.community.CommunityViewModel
 import com.example.gearhubmobile.ui.screens.home.HomeScreen
 import com.example.gearhubmobile.ui.screens.home.HomeViewModel
@@ -42,7 +43,7 @@ import com.example.gearhubmobile.ui.screens.vehicle.VehiclesScreen
 fun MainNavHost(navController: NavHostController, modifier: Modifier) {
     hiltViewModel<AuthViewModel>()
     val chatViewModel = hiltViewModel<ChatViewModel>()
-    hiltViewModel<CommunityViewModel>()
+    val communityViewModel = hiltViewModel<CommunityViewModel>()
     hiltViewModel<HomeViewModel>()
     val messageViewModel = hiltViewModel<MessageViewModel>()
     val postViewModel = hiltViewModel<PostViewModel>()
@@ -63,7 +64,10 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         ) { backStackEntry ->
             val communityId =
                 backStackEntry.arguments?.getString("communityId") ?: return@composable
-            ChatMessagesScreen(chatId = communityId, messageViewModel)
+            CommunityDetailScreen(
+                communityId = communityId, viewModel = communityViewModel,
+                navController = navController
+            )
         }
         composable(Routes.POST) {
             PlaceholderScreen("Publicar")

@@ -9,10 +9,17 @@ data class Thread(
     val id: String,
     val title: String,
     val content: String,
-    val likes: Int,
+    var likes: Int?,
     val community: Community,
     val creatorId: String,
     val images: List<String>
+)
+data class ThreadResponse(
+    val data: List<Thread>,
+    val pageNumber: Int,
+    val pageSize: Int,
+    val totalRecords: Int,
+    val totalPages: Int
 )
 
 data class CreateThreadRequest(
