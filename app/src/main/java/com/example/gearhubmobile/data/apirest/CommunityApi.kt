@@ -7,6 +7,7 @@ package com.example.gearhubmobile.data.apirest
 import com.example.gearhubmobile.data.models.Community
 import com.example.gearhubmobile.data.models.CommunityResponse
 import com.example.gearhubmobile.data.models.CommunityUpdateDTO
+import com.example.gearhubmobile.data.models.CreateCommunityResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -37,7 +38,7 @@ interface CommunityApi {
         @Part("ComDescription") username: RequestBody,
         @Part profileImage: MultipartBody.Part?,
         @Part bannerImage: MultipartBody.Part?
-    ): Response<Unit>
+    ): Response<CreateCommunityResponse>
 
 
     @PUT("api/Community")

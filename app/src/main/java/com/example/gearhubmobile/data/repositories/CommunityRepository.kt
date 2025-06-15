@@ -4,6 +4,7 @@ import com.example.gearhubmobile.data.apirest.CommunityApi
 import com.example.gearhubmobile.data.models.Community
 import com.example.gearhubmobile.data.models.CommunityDto
 import com.example.gearhubmobile.data.models.CommunityUpdateDTO
+import com.example.gearhubmobile.data.models.CreateCommunityResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -28,7 +29,7 @@ class CommunityRepository @Inject constructor(private val api: CommunityApi) {
         comDesc: RequestBody,
         profileImg: MultipartBody.Part?,
         bannerImg: MultipartBody.Part?
-    ): Response<Unit> {
+    ): Response<CreateCommunityResponse> {
         return api.createCommunity(comName, comDesc, profileImg, bannerImg)
 
     }

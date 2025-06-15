@@ -14,7 +14,7 @@ data class Community(
     val creatorId: String,
     val subscriptions: Int?
 )
-
+data class CreateCommunityResponse(val id: String)
 data class CommunityDto(
     val id: String,
     val comName: String,

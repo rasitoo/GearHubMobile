@@ -7,6 +7,7 @@ package com.example.gearhubmobile.ui.navigation
 object Routes {
     const val START = "start"
     const val LOGIN = "login"
+    const val LOGOUT = "logout"
     const val REGISTER = "register"
     const val RECOVER = "recover"
     const val CREATE_USER = "create_user"

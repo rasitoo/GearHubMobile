@@ -83,15 +83,17 @@ fun AllCommunities(viewModel: CommunityViewModel) {
 
 @Composable
 fun CommunityList(
-    communities: List<CommunityDto>,
+    communities: List<Community>,
     viewModel: CommunityViewModel,
-    onCommunityClick: (CommunityDto) -> Unit
+    onCommunityClick: (Community) -> Unit,
+    modifier: Modifier = Modifier
+
 ) {
 
     if (viewModel.isLoading) {
         CircularProgressIndicator(modifier = Modifier.padding(8.dp))
     } else {
-        LazyColumn {
+        LazyColumn(modifier = modifier) {
             items(communities.size) { index ->
                 val community = communities[index]
                 CommunityListItem(community = community, onClick = { onCommunityClick(community) })
@@ -102,7 +104,7 @@ fun CommunityList(
 
 @Composable
 fun CommunityListItem(
-    community: CommunityDto,
+    community: Community,
     onClick: () -> Unit
 ) {
     Card(

@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.gearhubmobile.MainScreen
 import com.example.gearhubmobile.StartScreen
@@ -24,6 +25,7 @@ import com.example.gearhubmobile.ui.screens.home.PlaceholderScreen
 import com.example.gearhubmobile.ui.screens.login.AuthViewModel
 import com.example.gearhubmobile.ui.screens.login.CreateUserScreen
 import com.example.gearhubmobile.ui.screens.login.LoginScreen
+import com.example.gearhubmobile.ui.screens.login.LogoutScreen
 import com.example.gearhubmobile.ui.screens.login.RecoverScreen
 import com.example.gearhubmobile.ui.screens.login.RegisterScreen
 import com.example.gearhubmobile.ui.screens.message.ChatMessagesScreen
@@ -46,7 +48,7 @@ import com.example.gearhubmobile.ui.screens.vehicle.VehiclesScreen
  */
 @Composable
 fun MainNavHost(navController: NavHostController, modifier: Modifier) {
-    hiltViewModel<AuthViewModel>()
+    val authViewModel = hiltViewModel<AuthViewModel>()
     val chatViewModel = hiltViewModel<ChatViewModel>()
     val communityViewModel = hiltViewModel<CommunityViewModel>()
     hiltViewModel<HomeViewModel>()
@@ -63,6 +65,9 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         }
         composable(Routes.HOME) {
             HomeScreen()
+        }
+        composable(Routes.LOGOUT) {
+            LogoutScreen(authViewModel)
         }
         composable(
             route = Routes.COMMUNITY_DETAIL,

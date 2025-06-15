@@ -63,6 +63,9 @@ class AuthViewModel @Inject constructor(
             repository.recover(email)
         }
     }
+    suspend fun logout() {
+        sessionManager.clearToken()
+    }
 
     suspend fun checkUserStatus(): String {
         val result = userRepository.getUserById(sessionManager.getUserId().toString())

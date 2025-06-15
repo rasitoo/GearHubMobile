@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,9 +37,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.example.gearhubmobile.ui.navigation.AppNavHost
 import com.example.gearhubmobile.ui.navigation.Routes
-import com.example.gearhubmobile.ui.screens.Screen
 
 /**
  * @author Rodrigo
@@ -445,4 +447,14 @@ fun RecoverScreen(
             }
         }
     }
+}
+
+@Composable
+fun LogoutScreen(viewModel: AuthViewModel) {
+
+    LaunchedEffect(Unit) {
+        viewModel.logout()
+    }
+    AppNavHost(rememberNavController())
+
 }

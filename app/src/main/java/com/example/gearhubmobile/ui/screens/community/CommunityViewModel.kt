@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.models.Community
 import com.example.gearhubmobile.data.models.Thread
-import com.example.gearhubmobile.data.models.CommunityDto
 import com.example.gearhubmobile.data.repositories.CommunityRepository
 import com.example.gearhubmobile.data.repositories.ThreadRepository
 import com.example.gearhubmobile.utils.SessionManager
@@ -31,8 +30,8 @@ class CommunityViewModel @Inject constructor(
     private val threadRepository: ThreadRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
-    var communities by mutableStateOf<List<CommunityDto>>(emptyList())
-    var myCommunities by mutableStateOf<List<CommunityDto>>(emptyList())
+    var communities by mutableStateOf<List<Community>>(emptyList())
+    var myCommunities by mutableStateOf<List<Community>>(emptyList())
     var community = mutableStateOf<Community?>(null)
     var communityPosts = mutableStateOf<List<Thread>>(emptyList())
     var likesState by mutableStateOf<Map<String, Boolean>>(emptyMap())
@@ -54,15 +53,15 @@ class CommunityViewModel @Inject constructor(
             isLoading = true
             try {
                 val temp = repository.getAllCommunities()
-                var com: Community
+                myCommunities = emptyList()
+                communities = emptyList()
                 temp.forEach { community ->
-                    com = repository.getCommunityById(id = community.id)
+                    val com = repository.getCommunityById(id = community.id)
                     if (com.creatorId == currentId)
-                        myCommunities + com
+                        myCommunities = myCommunities + com
                     else
-                        communities + com
+                        communities = communities + com
                 }
-                communities = repository.getAllCommunities()
             } catch (e: Exception) {
                 errorMessage = e.message
             } finally {
@@ -110,6 +109,8 @@ class CommunityViewModel @Inject constructor(
             comCreated = result.isSuccessful
             if (!result.isSuccessful) {
                 errorMessage = result.message() ?: "Error al crear la comunidad"
+            }else{
+                repository.subscribeToCommunity(result.body()?.id ?: "-1")
             }
         }
     }

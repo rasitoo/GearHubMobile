@@ -6,10 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
@@ -93,39 +97,57 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
 
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet() {
-
-                Text("Menú comunidades", modifier = Modifier.padding(16.dp))
-                Divider()
-                Text("Mis comunidades", modifier = Modifier.padding(16.dp))
-                Button(
-                    onClick = {
-                        navController.navigate(Routes.CREATE_COMMUNITY)
-                        scope.launch { drawerState.close() }
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = "Crear comunidad")
-                    Text("Crear comunidad", modifier = Modifier.padding(start = 8.dp))
+            ModalDrawerSheet {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Text("Menú comunidades", modifier = Modifier.padding(16.dp))
+                    Divider()
+                    Button(
+                        onClick = {
+                            navController.navigate(Routes.CREATE_COMMUNITY)
+                            scope.launch { drawerState.close() }
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "Crear comunidad")
+                        Text("Crear comunidad", modifier = Modifier.padding(start = 8.dp))
+                    }
+                    // Esta columna ocupa todo el espacio disponible
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("Mis comunidades", modifier = Modifier.padding(16.dp))
+                        CommunityList(
+                            communities = communityViewModel.myCommunities,
+                            viewModel = communityViewModel,
+                            onCommunityClick = { community ->
+                                navController.navigate("${Routes.COMMUNITY_DETAIL_BASE}/${community.id}")
+                                scope.launch { drawerState.close() }
+                            },
+                            modifier = Modifier.heightIn(max = 220.dp).fillMaxWidth()
+                        )
+                        Text("Recomendadas", modifier = Modifier.padding(16.dp))
+                        CommunityList(
+                            communities = communityViewModel.communities,
+                            viewModel = communityViewModel,
+                            onCommunityClick = { community ->
+                                navController.navigate("${Routes.COMMUNITY_DETAIL_BASE}/${community.id}")
+                                scope.launch { drawerState.close() }
+                            },
+                            modifier = Modifier.fillMaxHeight().fillMaxWidth()
+                        )
+                    }
+                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    Button(
+                        onClick = {
+                            navController.navigate(Routes.LOGOUT)
+                        },
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text("Cerrar sesión")
+                    }
                 }
-                CommunityList(
-                    communities = communityViewModel.myCommunities,
-                    viewModel = communityViewModel,
-                    onCommunityClick = { community ->
-                        navController.navigate("${Routes.COMMUNITY_DETAIL_BASE}/${community.id}")
-                        scope.launch { drawerState.close() }
-                    }
-                )
-                Text("Recomendadas", modifier = Modifier.padding(16.dp))
-                CommunityList(
-                    communities = communityViewModel.communities,
-                    viewModel = communityViewModel,
-                    onCommunityClick = { community ->
-                        navController.navigate("${Routes.COMMUNITY_DETAIL_BASE}/${community.id}")
-                    }
-                )
             }
         }
     ) {
