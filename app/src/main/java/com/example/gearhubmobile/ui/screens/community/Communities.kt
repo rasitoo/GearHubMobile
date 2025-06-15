@@ -166,8 +166,7 @@ fun CommunityDetailScreen(
                     CommunityPostItem(
                         post,
                         onClick = {
-                            navController.navigate(Routes.POST_DETAIL)
-                        },
+                            navController.navigate("${Routes.POST_DETAIL_BASE}/${post.id}")},
                         viewModel = viewModel
                     )
                 }
@@ -215,7 +214,7 @@ fun CommunityHeader(community: Community?) {
 
 @Composable
 fun CommunityPostItem(
-    post: Thread?,
+    post: Thread,
     onClick: () -> Unit,
     viewModel: CommunityViewModel
 ) {
@@ -226,12 +225,12 @@ fun CommunityPostItem(
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        var isLiked by rememberSaveable { mutableStateOf(false) }
+        var isLiked by rememberSaveable { mutableStateOf(viewModel.likesState[post.id] == true) }
 
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(post?.title ?: "Unknown", style = MaterialTheme.typography.titleMedium)
+            Text(post.title, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(4.dp))
-            post?.images?.takeIf { it.isNotEmpty() }?.let { images ->
+            post.images.takeIf { it.isNotEmpty() }?.let { images ->
                 LazyRow(modifier = Modifier.fillMaxWidth()) {
                     images.forEach { imageUrl ->
                         item {
@@ -250,20 +249,22 @@ fun CommunityPostItem(
                 Spacer(modifier = Modifier.height(8.dp))
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                isLiked = viewModel.likesState[post?.id ?: "0"] == true
                 HeartButton(
                     isLiked = isLiked,
                     onToggle = {
-                        if (isLiked) post?.likes = post.likes!! - 1
-                        else post?.likes = post.likes!! + 1
-                        viewModel.toggleLike(post?.id.toString())
+                        viewModel.toggleLike(post.id.toString())
+                        if (isLiked) {
+                            post.likes = (post.likes ?: 1) - 1
+                        } else {
+                            post.likes = (post.likes ?: 0) + 1
+                        }
                         isLiked = !isLiked
                     },
                     activatedImageVector = Icons.Default.ThumbUp,
                     deactivatedImageVector = Icons.Outlined.ThumbUp
                 )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text((post?.likes ?: 0).toString())
+                Text((post.likes ?: 0).toString())
             }
         }
     }

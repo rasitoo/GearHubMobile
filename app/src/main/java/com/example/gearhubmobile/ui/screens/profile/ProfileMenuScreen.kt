@@ -17,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -164,7 +166,11 @@ fun ProfileDetailScreen(
                     if (viewModel.threads.isNullOrEmpty()) {
                         Text("No hay posts.", style = MaterialTheme.typography.bodyMedium)
                     } else {
-                        PostList(viewModel.threads)
+                        PostList(
+                            viewModel.threads,
+                            viewModel,
+                            onPostClick = { post -> navController.navigate("${Routes.POST_DETAIL_BASE}/${post.id}") }
+                        )
                     }
                 } else {
                     if (viewModel.responses.isNullOrEmpty()) {
@@ -178,13 +184,57 @@ fun ProfileDetailScreen(
     }
 }
 
+
 @Composable
-fun PostList(posts: List<Thread>?) {
+fun PostList(
+    posts: List<Thread>?,
+    viewModel: ProfileViewModel,
+    onPostClick: (Thread) -> Unit = {}
+) {
     Column {
-        posts?.forEach {
-            Text(it.title, style = MaterialTheme.typography.titleMedium)
-            Text(it.content, style = MaterialTheme.typography.bodySmall)
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+        posts?.forEach { post ->
+            androidx.compose.material3.Card(
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth()
+                    .clickable { onPostClick(post) }
+            ) {
+                Column(Modifier.padding(12.dp)) {
+                    Text(post.title, style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    post.images.takeIf { it.isNotEmpty() }?.let { images ->
+                        androidx.compose.foundation.lazy.LazyRow(modifier = Modifier.fillMaxWidth()) {
+                            items(images.size) { idx ->
+                                coil.compose.AsyncImage(
+                                    model = "http://vms.iesluisvives.org:25003${images[idx]}",
+                                    contentDescription = "Imagen del post",
+                                    modifier = Modifier
+                                        .size(120.dp)
+                                        .padding(end = 8.dp)
+                                        .clip(MaterialTheme.shapes.medium),
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val isLiked = viewModel.likesState[post.id] == true
+                        HeartButton(
+                            isLiked = isLiked,
+                            onToggle = {
+                                if (isLiked) post.likes = (post.likes ?: 1) - 1
+                                else post.likes = (post.likes ?: 0) + 1
+                                viewModel.toggleLike(post.id.toString())
+                            },
+                            activatedImageVector = Icons.Default.ThumbUp,
+                            deactivatedImageVector = Icons.Outlined.ThumbUp
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text((post.likes ?: 0).toString())
+                    }
+                }
+            }
         }
     }
 }

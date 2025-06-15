@@ -20,6 +20,9 @@ class ResponseRepository @Inject constructor(private val api: ResponseApi) {
     suspend fun getResponsesByThread(id: String): List<ResponseDTO> {
         return api.getResponsesByThread(id).data
     }
+    suspend fun getResponsesByResponse(threadId: String,responseId: String): List<ResponseDTO> {
+        return api.getResponsesByResponse(threadId,responseId).data
+    }
 
     suspend fun getResponsesByLikes(id: String): List<ResponseDTO> {
         return api.getResponsesByLikes(id).data
@@ -34,7 +37,7 @@ class ResponseRepository @Inject constructor(private val api: ResponseApi) {
         parentId: String,
         threadId: String,
     ): Response<Unit> {
-        val responseRequest = CreateResponseRequest(content, parentId, threadId)
+        val responseRequest = CreateResponseRequest(content = content, parentId = parentId, threadId = threadId)
 
         return api.createResponse(responseRequest)
     }

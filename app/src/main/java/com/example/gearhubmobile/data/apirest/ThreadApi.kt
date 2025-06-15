@@ -50,10 +50,10 @@ interface ThreadApi {
     suspend fun unlikeThread(@Path("threadId") threadId: String): Response<Unit>
 
     @GET("api/Thread/bylike/{creatorId}")
-    suspend fun getThreadsByLikes(@Path("creatorId") creatorId: String): List<Thread>
+    suspend fun getThreadsByLikes(@Path("creatorId") creatorId: String): ThreadResponse
 
     @GET("api/Thread/bycreator/{creatorId}")
-    suspend fun getThreadsByCreator(@Path("creatorId") creatorId: String): List<Thread>
+    suspend fun getThreadsByCreator(@Path("creatorId") creatorId: String): ThreadResponse
 
     @GET("api/Thread/{idThread}")
     suspend fun getThreadById(@Path("idThread") threadId: String): Thread

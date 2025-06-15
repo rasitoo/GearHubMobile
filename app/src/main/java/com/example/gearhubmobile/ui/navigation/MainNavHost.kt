@@ -8,7 +8,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.gearhubmobile.MainScreen
 import com.example.gearhubmobile.StartScreen
@@ -21,7 +20,6 @@ import com.example.gearhubmobile.ui.screens.community.CommunityViewModel
 import com.example.gearhubmobile.ui.screens.community.CreateCommunityScreen
 import com.example.gearhubmobile.ui.screens.home.HomeScreen
 import com.example.gearhubmobile.ui.screens.home.HomeViewModel
-import com.example.gearhubmobile.ui.screens.home.PlaceholderScreen
 import com.example.gearhubmobile.ui.screens.login.AuthViewModel
 import com.example.gearhubmobile.ui.screens.login.CreateUserScreen
 import com.example.gearhubmobile.ui.screens.login.LoginScreen
@@ -31,6 +29,7 @@ import com.example.gearhubmobile.ui.screens.login.RegisterScreen
 import com.example.gearhubmobile.ui.screens.message.ChatMessagesScreen
 import com.example.gearhubmobile.ui.screens.message.MessageViewModel
 import com.example.gearhubmobile.ui.screens.post.CreatePostScreen
+import com.example.gearhubmobile.ui.screens.post.PostDetailScreen
 import com.example.gearhubmobile.ui.screens.post.PostViewModel
 import com.example.gearhubmobile.ui.screens.profile.ProfileDetailScreen
 import com.example.gearhubmobile.ui.screens.profile.ProfileViewModel
@@ -51,7 +50,7 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
     val authViewModel = hiltViewModel<AuthViewModel>()
     val chatViewModel = hiltViewModel<ChatViewModel>()
     val communityViewModel = hiltViewModel<CommunityViewModel>()
-    hiltViewModel<HomeViewModel>()
+    val homeViewModel =hiltViewModel<HomeViewModel>()
     val messageViewModel = hiltViewModel<MessageViewModel>()
     val postViewModel = hiltViewModel<PostViewModel>()
     val profileViewModel = hiltViewModel<ProfileViewModel>()
@@ -60,11 +59,8 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
     NavHost(
         navController = navController, startDestination = Routes.HOME, modifier = modifier
     ) {
-        composable(Routes.COMMUNITIES) {
-            PlaceholderScreen("Comunidades")
-        }
         composable(Routes.HOME) {
-            HomeScreen()
+            HomeScreen(homeViewModel)
         }
         composable(Routes.LOGOUT) {
             LogoutScreen(authViewModel)
@@ -157,6 +153,14 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         ) { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString("chatId") ?: "-1"
             ChatMessagesScreen(chatId = chatId, messageViewModel)
+        }
+
+        composable(
+            route = Routes.POST_DETAIL,
+            arguments = listOf(navArgument("threadId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val threadId = backStackEntry.arguments?.getString("threadId") ?: "-1"
+            PostDetailScreen(threadId = threadId, postViewModel)
         }
     }
 }

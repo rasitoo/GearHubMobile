@@ -14,6 +14,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ResponseApi {
 
@@ -43,4 +44,10 @@ interface ResponseApi {
 
     @GET("api/Responses/{threadId}/Responses")
     suspend fun getResponsesByThread(@Path("threadId") threadId: String): ResponseRequest
+
+    @GET("api/Responses/{threadId}/Responses")
+    suspend fun getResponsesByResponse(
+        @Path("threadId") threadId: String,
+        @Query("parentId") parentId: String
+    ): ResponseRequest
 }

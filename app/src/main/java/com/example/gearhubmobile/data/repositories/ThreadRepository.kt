@@ -62,11 +62,11 @@ class ThreadRepository @Inject constructor(private val api: ThreadApi) {
     }
 
     suspend fun getThreadsByCreator(creatorId: String): List<Thread> {
-        return api.getThreadsByCreator(creatorId)
+        return api.getThreadsByCreator(creatorId).data
     }
 
     suspend fun getThreadsByLikes(creatorId: String): List<Thread> {
-        return api.getThreadsByLikes(creatorId)
+        return api.getThreadsByLikes(creatorId).data
     }
 
     suspend fun hasLikedThread(threadId: String): Boolean {

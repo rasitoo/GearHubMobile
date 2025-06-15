@@ -155,8 +155,19 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
-    fun toggleLike(string: String) {}
-    fun postHasLike(string: String?): Boolean {
-        return false
+    fun toggleLike(id: String) {
+        viewModelScope.launch {
+            val current = likesState[id] == true
+            try {
+                if (current) threadRepository.unlikeThread(id).isSuccessful
+                else threadRepository.likeThread(id).isSuccessful
+
+                likesState = likesState.toMutableMap().apply {
+                    this[id] = !current
+                }
+            } catch (e: Exception) {
+                errorMessage = e.message
+            }
+        }
     }
 }
