@@ -21,8 +21,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Button
@@ -34,15 +32,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,10 +52,10 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.gearhubmobile.data.models.Community
-import com.example.gearhubmobile.data.models.CommunityDto
 import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.ui.components.HeartButton
 import com.example.gearhubmobile.ui.navigation.Routes
+import kotlinx.coroutines.launch
 
 /**
  * @author Rodrigo
@@ -160,7 +156,7 @@ fun CommunityDetailScreen(
     } else {
         LazyColumn {
             item {
-                CommunityHeader(community)
+                CommunityHeader(community, viewModel)
             }
 
             posts.forEach { post ->
@@ -179,7 +175,26 @@ fun CommunityDetailScreen(
 
 
 @Composable
-fun CommunityHeader(community: Community?) {
+fun CommunityHeader(
+    community: Community?,
+    viewModel: CommunityViewModel,
+    onEditClick: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var isSubscribed by remember { mutableStateOf(false) }
+    var isCreator by remember { mutableStateOf(false) }
+    var currentUserId by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(community) {
+        viewModel.getCurrentData()
+        currentUserId = viewModel.currentId
+        isCreator = community?.creatorId == viewModel.currentId
+        community?.id?.let {
+            isSubscribed = viewModel.hasSubscription(it)
+        }
+    }
+
     if (community == null) return
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -205,14 +220,37 @@ fun CommunityHeader(community: Community?) {
                     .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(community.comName, style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(community.comDescription ?: "", style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Suscriptores: ${community.subscriptions}", style = MaterialTheme.typography.labelMedium)
+            }
+            if (isCreator) {
+                Button(onClick = onEditClick) {
+                    Text("Editar")
+                }
+            } else {
+                Button(onClick = {
+                    scope.launch {
+                        try {
+                            if (isSubscribed) {
+                                viewModel.unsubscribeFromCommunity(community.id)
+                            } else {
+                                viewModel.subscribeToCommunity(community.id)
+                            }
+                            isSubscribed = !isSubscribed
+                        } catch (_: Exception) {}
+                    }
+                }) {
+                    Text(if (isSubscribed) "Abandonar" else "Unirse")
+                }
             }
         }
     }
 }
+
 
 @Composable
 fun CommunityPostItem(

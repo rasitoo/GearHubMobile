@@ -41,7 +41,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -54,13 +53,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.gearhubmobile.data.models.CommunityDto
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.ui.components.HeartButton
+import com.example.gearhubmobile.ui.screens.community.CommunityHeader
+import com.example.gearhubmobile.ui.screens.community.CommunityViewModel
 
 /**
  * @author Rodrigo
@@ -203,7 +204,8 @@ fun CreatePostScreen(
 @Composable
 fun PostDetailScreen(
     threadId: String?,
-    viewModel: PostViewModel
+    viewModel: PostViewModel,
+    comViewModel: CommunityViewModel
 ) {
     LaunchedEffect(threadId) {
         viewModel.loadThread(threadId.toString())
@@ -212,45 +214,52 @@ fun PostDetailScreen(
     var showReplyBox by remember { mutableStateOf(false) }
     var replyText by remember { mutableStateOf("") }
 
-    Scaffold { padding ->
-        if (thread == null) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        } else {
-            Column(
-                Modifier
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState()) // Hacer scrolleable todo el contenido
+
+    if (thread == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    } else {
+        Column(
+            Modifier
+                .verticalScroll(rememberScrollState())
+        ) {
+            CommunityHeader(viewModel.community.value, comViewModel)
+            Card(
+                Modifier.padding(8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
                 Text(thread.title, style = MaterialTheme.typography.headlineSmall)
-                Text(
-                    "Comunidad: ${thread.community.comName}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
                 Spacer(Modifier.height(8.dp))
                 Text(thread.content, style = MaterialTheme.typography.bodyLarge)
                 Spacer(Modifier.height(8.dp))
-                if (thread.images.isNotEmpty()) {
-                    LazyRow {
-                        thread.images.forEach { img ->
+                thread.images.takeIf { it.isNotEmpty() }?.let { images ->
+                    LazyRow(modifier = Modifier.fillMaxWidth()) {
+                        images.forEach { imageUrl ->
                             item {
                                 AsyncImage(
-                                    model = img,
-                                    contentDescription = null,
+                                    model = "http://vms.iesluisvives.org:25003$imageUrl",
+                                    contentDescription = "Imagen del post",
                                     modifier = Modifier
                                         .size(120.dp)
                                         .padding(end = 8.dp)
-                                        .clip(RoundedCornerShape(8.dp))
+                                        .clip(MaterialTheme.shapes.medium),
+                                    contentScale = ContentScale.Crop
                                 )
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
-                Spacer(Modifier.height(16.dp))
-                Divider()
-                Spacer(Modifier.height(8.dp))
+            }
+
+            Spacer(Modifier.height(16.dp))
+            Divider()
+            Spacer(Modifier.height(8.dp))
+            Card(
+                Modifier.padding(8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+            ) {
                 TextButton(onClick = { showReplyBox = !showReplyBox }) {
                     Text("Responder al hilo")
                 }
@@ -306,6 +315,7 @@ fun PostDetailScreen(
         }
     }
 }
+
 
 @Composable
 fun ResponseItem(response: ResponseDTO, indent: Int, viewModel: PostViewModel, threadID: String) {

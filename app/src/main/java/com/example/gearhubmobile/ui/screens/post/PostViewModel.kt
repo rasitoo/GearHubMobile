@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.gearhubmobile.data.models.Community
 import com.example.gearhubmobile.data.models.CommunityDto
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.data.models.Thread
@@ -37,6 +38,8 @@ class PostViewModel @Inject constructor(
     private val communityRepository: CommunityRepository
 ) : ViewModel() {
     var user by mutableStateOf<User?>(null)
+    var community = mutableStateOf<Community?>(null)
+    var thread by mutableStateOf<Thread?>(null)
     val threads = mutableStateListOf<Thread>()
     val communities = MutableStateFlow<List<CommunityDto>>(emptyList())
     var errorMessage by mutableStateOf<String?>(null)
@@ -62,6 +65,16 @@ class PostViewModel @Inject constructor(
             }
         }
     }
+    fun loadCommunity(id: String) {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                community.value = communityRepository.getCommunityById(id)
+            } catch (_: Exception) {
+            }
+            isLoading = false
+        }
+    }
 
     fun toggleResponseLike(id: String) {
         viewModelScope.launch {
@@ -79,7 +92,6 @@ class PostViewModel @Inject constructor(
         }
     }
 
-    var thread by mutableStateOf<Thread?>(null)
 
 
     init {
@@ -111,10 +123,12 @@ class PostViewModel @Inject constructor(
 fun loadThread(threadId: String) {
     viewModelScope.launch {
         thread = threadRepository.getThreadById(threadId)
-        thread?.let { t ->
-            val mainResponses = responseRepository.getResponsesByThread(t.id.toString())
-            setResponsesForThread(t.id, mainResponses)
+        loadCommunity(thread?.community?.id ?: "")
+        thread.let { t ->
+            val mainResponses = responseRepository.getResponsesByThread(t?.id.toString())
+            setResponsesForThread(t?.id ?: "0", mainResponses)
             updateUsersForResponses(mainResponses)
+
 
             suspend fun loadSubResponsesRecursively(response: ResponseDTO) {
                 val subResponses = responseRepository.getResponsesByResponse(threadId, response.id)

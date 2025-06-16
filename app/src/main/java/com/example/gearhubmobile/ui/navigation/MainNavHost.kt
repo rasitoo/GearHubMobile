@@ -158,7 +158,7 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
             arguments = listOf(navArgument("threadId") { type = NavType.StringType })
         ) { backStackEntry ->
             val threadId = backStackEntry.arguments?.getString("threadId") ?: "-1"
-            PostDetailScreen(threadId = threadId, postViewModel)
+            PostDetailScreen(threadId = threadId, postViewModel, communityViewModel)
         }
     }
 }

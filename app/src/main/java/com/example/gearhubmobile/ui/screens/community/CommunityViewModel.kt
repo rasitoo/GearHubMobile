@@ -111,7 +111,7 @@ class CommunityViewModel @Inject constructor(
             comCreated = result.isSuccessful
             if (!result.isSuccessful) {
                 errorMessage = result.message() ?: "Error al crear la comunidad"
-            }else{
+            } else {
                 repository.subscribeToCommunity(result.body()?.id ?: "-1")
             }
         }
@@ -151,7 +151,8 @@ class CommunityViewModel @Inject constructor(
     fun loadPosts(communityId: String) {
         viewModelScope.launch {
             try {
-                val posts = threadRepository.getAllThreads()
+                communityPosts.value = emptyList()
+                val posts = threadRepository.getThreadsByCommunity(communityId).data
                 communityPosts.value = posts
                 likesState.clear()
                 posts.forEach { post ->
@@ -181,7 +182,6 @@ class CommunityViewModel @Inject constructor(
     }
 
 
-
     fun toggleLike(id: String) {
         viewModelScope.launch {
             val current = likesState[id] == true
@@ -200,4 +200,31 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
-}
+    suspend fun hasSubscription(string: String): Boolean {
+        return try {
+            repository.hasSubscription(string)
+        } catch (e: Exception) {
+            errorMessage = e.message
+            false
+        }
+
+    }
+
+    fun unsubscribeFromCommunity(string: String) {viewModelScope.launch {
+        try {
+            repository.unsubscribeFromCommunity(string)
+        } catch (e: Exception) {
+            errorMessage = e.message
+        }
+    }}
+    fun subscribeToCommunity(string: String) {viewModelScope.launch {
+        try {
+            repository.subscribeToCommunity(string)
+        } catch (e: Exception) {
+            errorMessage = e.message
+        }
+    }}
+
+    }
+
+
