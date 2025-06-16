@@ -39,8 +39,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -225,7 +227,7 @@ fun CommunityPostItem(
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        var isLiked by rememberSaveable { mutableStateOf(viewModel.likesState[post.id] == true) }
+        val isLiked = viewModel.likesState[post.id] == true
 
         Column(modifier = Modifier.padding(16.dp)) {
             Text(post.title, style = MaterialTheme.typography.titleMedium)
@@ -250,15 +252,14 @@ fun CommunityPostItem(
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HeartButton(
-                    isLiked = isLiked,
+                    isLiked = isLiked == true,
                     onToggle = {
                         viewModel.toggleLike(post.id.toString())
-                        if (isLiked) {
+                        if (isLiked == true) {
                             post.likes = (post.likes ?: 1) - 1
                         } else {
                             post.likes = (post.likes ?: 0) + 1
                         }
-                        isLiked = !isLiked
                     },
                     activatedImageVector = Icons.Default.ThumbUp,
                     deactivatedImageVector = Icons.Outlined.ThumbUp

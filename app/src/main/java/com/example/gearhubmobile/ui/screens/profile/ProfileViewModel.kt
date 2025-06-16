@@ -1,6 +1,7 @@
 package com.example.gearhubmobile.ui.screens.profile
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -35,7 +36,7 @@ class ProfileViewModel @Inject constructor(
     var user by mutableStateOf<User?>(null)
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
-    var likesState by mutableStateOf<Map<String, Boolean>>(emptyMap())
+    val likesState = mutableStateMapOf<String, Boolean>()
 
     fun getUser(id: String) {
         viewModelScope.launch {
@@ -114,11 +115,12 @@ class ProfileViewModel @Inject constructor(
                         response.creatorId to user
                     }
                 }?.toMap() ?: emptyMap()
-                likesState = responses?.mapNotNull { response ->
-                    responseRepository.hasLike(response.id).let { bool ->
-                        response.id to bool
-                    }
-                }?.toMap() ?: emptyMap()
+
+                likesState.clear()
+                responses?.forEach { response ->
+                    val liked = responseRepository.hasLike(response.id)
+                    likesState[response.id] = liked
+                }
             } catch (e: Exception) {
                 errorMessage = e.message
             } finally {
@@ -137,11 +139,12 @@ class ProfileViewModel @Inject constructor(
                         response.id to user
                     }
                 }?.toMap() ?: emptyMap()
-                likesState = responses?.mapNotNull { response ->
-                    responseRepository.hasLike(response.id).let { bool ->
-                        response.id to bool
-                    }
-                }?.toMap() ?: emptyMap()
+
+                likesState.clear()
+                responses?.forEach { response ->
+                    val liked = responseRepository.hasLike(response.id)
+                    likesState[response.id] = liked
+                }
             } catch (e: Exception) {
                 errorMessage = e.message
             } finally {
@@ -155,11 +158,13 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             val current = likesState[id] == true
             try {
-                if (current) responseRepository.unlikeResponse(id).isSuccessful
-                else responseRepository.likeResponse(id).isSuccessful
+                val success = if (current)
+                    responseRepository.unlikeResponse(id).isSuccessful
+                else
+                    responseRepository.likeResponse(id).isSuccessful
 
-                likesState = likesState.toMutableMap().apply {
-                    this[id] = !current
+                if (success) {
+                    likesState[id] = !current
                 }
             } catch (e: Exception) {
                 errorMessage = e.message

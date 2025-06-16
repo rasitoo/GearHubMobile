@@ -46,6 +46,9 @@ class PostViewModel @Inject constructor(
     var likesState by mutableStateOf<Map<String, Boolean>>(emptyMap())
     var responsesUsers by mutableStateOf<Map<String, User>>(emptyMap())
 
+    var selectedCommunity by mutableStateOf<CommunityDto?>(null)
+
+
 
     fun getUser(id: String) {
         viewModelScope.launch {

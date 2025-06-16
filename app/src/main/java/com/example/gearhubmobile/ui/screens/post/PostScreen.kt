@@ -74,122 +74,114 @@ fun CreatePostScreen(
 ) {
     val context = LocalContext.current
 
-    var selectedCommunity by remember { mutableStateOf<CommunityDto?>(null) }
     var expanded by remember { mutableStateOf(false) }
     var title by rememberSaveable { mutableStateOf("") }
     var message by rememberSaveable { mutableStateOf("") }
-    var imageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
+    var imageUris by rememberSaveable { mutableStateOf<List<Uri>>(emptyList()) }
 
     val communities = viewModel.communities.collectAsState()
 
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
-        onResult = { uris ->
-            if (uris != null) imageUris = uris
-        }
+        onResult = { uris -> if (uris != null) imageUris = uris }
     )
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Nueva publicación") })
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .padding(padding),
-            verticalArrangement = Arrangement.Top
-        ) {
-            Text("Comunidad", style = MaterialTheme.typography.labelLarge)
-            Box {
-                OutlinedTextField(
-                    value = selectedCommunity?.comName ?: "",
-                    onValueChange = {},
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Selecciona una comunidad") },
-                    trailingIcon = {
-                        IconButton(onClick = { expanded = !expanded }) {
-                            Icon(Icons.Default.ArrowDropDown, contentDescription = "Expandir")
-                        }
-                    }
-                )
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
-                ) {
-                    communities.value.forEach { community ->
-                        DropdownMenuItem(
-                            text = { Text(community.comName) },
-                            onClick = {
-                                selectedCommunity = community
-                                expanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Top
+    ) {
+        Text("Comunidad", style = MaterialTheme.typography.labelLarge)
+        Box {
             OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                label = { Text("Título") },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            OutlinedTextField(
-                value = message,
-                onValueChange = { message = it },
-                label = { Text("Mensaje") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                maxLines = 6
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text("Imágenes seleccionadas: ${imageUris.size}")
-
-            LazyRow {
-                imageUris.forEach { uri ->
-                    item {
-                        AsyncImage(
-                            model = uri,
-                            contentDescription = "Imagen seleccionada",
-                            modifier = Modifier
-                                .size(100.dp)
-                                .padding(4.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                        )
+                value = viewModel.selectedCommunity?.comName ?: "",
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Selecciona una comunidad") },
+                trailingIcon = {
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Expandir")
                     }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = {
-                    imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 },
-                modifier = Modifier.fillMaxWidth()
+                readOnly = true
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
             ) {
-                Icon(Icons.Default.AddCircle, contentDescription = "Añadir imágenes")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Seleccionar imágenes")
+                communities.value.forEach { community ->
+                    DropdownMenuItem(
+                        text = { Text(community.comName) },
+                        onClick = {
+                            viewModel.selectedCommunity = community
+                            expanded = false
+                        }
+                    )
+                }
             }
+        }
 
-            Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            Button(
-                onClick = {
-                    if (selectedCommunity != null && title.isNotBlank() && message.isNotBlank()) {
+        OutlinedTextField(
+            value = title,
+            onValueChange = { title = it },
+            label = { Text("Título") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = message,
+            onValueChange = { message = it },
+            label = { Text("Mensaje") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp),
+            maxLines = 6
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Imágenes seleccionadas: ${imageUris.size}")
+
+        LazyRow {
+            items(imageUris.size) { index ->
+                AsyncImage(
+                    model = imageUris[index],
+                    contentDescription = "Imagen seleccionada",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(4.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedButton(
+            onClick = {
+                imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.AddCircle, contentDescription = "Añadir imágenes")
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Seleccionar imágenes")
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = {
+                viewModel.selectedCommunity?.let { community ->
+                    if (title.isNotBlank() && message.isNotBlank()) {
                         viewModel.createPost(
-                            communityId = selectedCommunity!!.id,
+                            communityId = community.id,
                             title = title,
                             content = message,
                             imageUris = imageUris,
@@ -197,15 +189,16 @@ fun CreatePostScreen(
                         )
                         navController.popBackStack()
                     }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = selectedCommunity != null
-            ) {
-                Text("Publicar")
-            }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = viewModel.selectedCommunity != null
+        ) {
+            Text("Publicar")
         }
     }
 }
+
 
 @Composable
 fun PostDetailScreen(
@@ -258,7 +251,7 @@ fun PostDetailScreen(
                 Spacer(Modifier.height(16.dp))
                 Divider()
                 Spacer(Modifier.height(8.dp))
-                TextButton (onClick = { showReplyBox = !showReplyBox }) {
+                TextButton(onClick = { showReplyBox = !showReplyBox }) {
                     Text("Responder al hilo")
                 }
                 if (showReplyBox) {
@@ -267,7 +260,9 @@ fun PostDetailScreen(
                             value = replyText,
                             onValueChange = { replyText = it },
                             label = { Text("Escribe tu respuesta...") },
-                            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
                         )
                         Button(
                             onClick = {
@@ -288,12 +283,22 @@ fun PostDetailScreen(
                 Spacer(Modifier.height(8.dp))
                 Text("Respuestas", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
-                val responses = viewModel.responsesByThread.value[thread.id] ?: emptyList<ResponseDTO>()
+                val responses =
+                    viewModel.responsesByThread.value[thread.id] ?: emptyList<ResponseDTO>()
                 if (responses.isEmpty()) {
-                    Text("Aún no hay respuestas.", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                    Text(
+                        "Aún no hay respuestas.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
                 } else {
                     responses.forEach { response ->
-                        ResponseItem(response = response, indent = 0, viewModel = viewModel, threadID = thread.id)
+                        ResponseItem(
+                            response = response,
+                            indent = 0,
+                            viewModel = viewModel,
+                            threadID = thread.id
+                        )
                         Divider(Modifier.padding(vertical = 4.dp))
                     }
                 }
@@ -352,7 +357,7 @@ fun ResponseItem(response: ResponseDTO, indent: Int, viewModel: PostViewModel, t
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            TextButton (onClick = { showReplyBox = !showReplyBox }) {
+            TextButton(onClick = { showReplyBox = !showReplyBox }) {
                 Text("Responder")
             }
             if (showReplyBox) {
@@ -383,7 +388,12 @@ fun ResponseItem(response: ResponseDTO, indent: Int, viewModel: PostViewModel, t
             if (childResponses.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 childResponses.forEach {
-                    ResponseItem(response = it, indent = indent + 1, viewModel = viewModel, threadID)
+                    ResponseItem(
+                        response = it,
+                        indent = indent + 1,
+                        viewModel = viewModel,
+                        threadID
+                    )
                 }
             }
         }

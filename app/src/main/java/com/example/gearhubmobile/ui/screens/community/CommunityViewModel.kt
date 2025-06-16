@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -34,7 +35,8 @@ class CommunityViewModel @Inject constructor(
     var myCommunities by mutableStateOf<List<Community>>(emptyList())
     var community = mutableStateOf<Community?>(null)
     var communityPosts = mutableStateOf<List<Thread>>(emptyList())
-    var likesState by mutableStateOf<Map<String, Boolean>>(emptyMap())
+    val likesState = mutableStateMapOf<String, Boolean>()
+
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     var comCreated by mutableStateOf(false)
@@ -149,25 +151,53 @@ class CommunityViewModel @Inject constructor(
     fun loadPosts(communityId: String) {
         viewModelScope.launch {
             try {
-                communityPosts.value = threadRepository.getThreadsByCommunity(communityId).data
+                val posts = threadRepository.getAllThreads()
+                communityPosts.value = posts
+                likesState.clear()
+                posts.forEach { post ->
+                    val liked = threadRepository.hasLikedThread(post.id)
+                    likesState[post.id] = liked
+                }
             } catch (_: Exception) {
             }
         }
     }
 
-    fun toggleLike(id: String) {
+    fun loadAllPosts() {
         viewModelScope.launch {
-            val current = likesState[id] == true
             try {
-                if (current) threadRepository.unlikeThread(id).isSuccessful
-                else threadRepository.likeThread(id).isSuccessful
+                val posts = threadRepository.getAllThreads()
+                communityPosts.value = posts
 
-                likesState = likesState.toMutableMap().apply {
-                    this[id] = !current
+                likesState.clear()
+                posts.forEach { post ->
+                    val liked = threadRepository.hasLikedThread(post.id)
+                    likesState[post.id] = liked
                 }
             } catch (e: Exception) {
                 errorMessage = e.message
             }
         }
     }
+
+
+
+    fun toggleLike(id: String) {
+        viewModelScope.launch {
+            val current = likesState[id] == true
+            try {
+                val success = if (current)
+                    threadRepository.unlikeThread(id).isSuccessful
+                else
+                    threadRepository.likeThread(id).isSuccessful
+
+                if (success) {
+                    likesState[id] = !current
+                }
+            } catch (e: Exception) {
+                errorMessage = e.message
+            }
+        }
+    }
+
 }
