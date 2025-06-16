@@ -53,7 +53,7 @@ fun VehiclesScreen(
     }
     Scaffold(
         floatingActionButton = {
-            if (userId == viewModel.currentId)
+            if (viewModel.userId.toString() == viewModel.currentId)
                 FloatingActionButton(onClick = {
                     navController.navigate(Routes.ADD_VEHICLE)
                 }) {

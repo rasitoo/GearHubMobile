@@ -46,8 +46,8 @@ class SessionManager @Inject constructor(
             val payloadJson = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING))
             val payload = JSONObject(payloadJson)
 
-            val userId = payload.optString("nameid", null) ?: return null
-            val email = payload.optString("email", null) ?: return null
+            val userId = payload.optString("nameid") ?: return null
+            val email = payload.optString("email") ?: return null
             val userType = payload.optInt("UserType", -1).takeIf { it != -1 } ?: return null
 
             Triple(userId, email, userType)

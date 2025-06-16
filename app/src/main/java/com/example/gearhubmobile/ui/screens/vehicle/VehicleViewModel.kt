@@ -27,6 +27,7 @@ class VehicleViewModel @Inject constructor(
 ) :
     ViewModel() {
     var user by mutableStateOf<User?>(null)
+    var userId by mutableStateOf<String?>(null)
     val vehicles = mutableStateListOf<VehicleDetail>()
     var errorMessage by mutableStateOf<String?>(null)
     var isLoading by mutableStateOf(false)
@@ -36,15 +37,15 @@ class VehicleViewModel @Inject constructor(
 
     suspend fun getCurrentData() {
         currentIsWorkshop = sessionManager.getUserType() == 2
-        currentId = sessionManager.getUserId()
+        currentId = sessionManager.getUserId().toString()
     }
 
     fun getUser(id: String?) {
         viewModelScope.launch {
             isLoading = true
             try {
-                var tempid = id ?: sessionManager.getUserId()
-                user = profileRepository.getUserById(tempid.toString()).getOrNull()
+                userId = id ?: sessionManager.getUserId()
+                user = profileRepository.getUserById(userId.toString()).getOrNull()
             } catch (e: Exception) {
                 errorMessage = e.message
             } finally {
