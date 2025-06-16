@@ -35,6 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,22 +62,7 @@ import kotlinx.coroutines.launch
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
-@Composable
-fun AllCommunities(viewModel: CommunityViewModel) {
-    LaunchedEffect(Unit) {
-        viewModel.loadCommunities()
-    }
-    if (viewModel.isLoading) {
-        CircularProgressIndicator(modifier = Modifier.padding(8.dp))
-    } else {
-        viewModel.communities.forEach { community ->
-            Text(
-                text = community.comName,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-    }
-}
+
 
 
 @Composable

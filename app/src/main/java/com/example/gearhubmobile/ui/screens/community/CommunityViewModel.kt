@@ -15,6 +15,7 @@ import com.example.gearhubmobile.data.repositories.CommunityRepository
 import com.example.gearhubmobile.data.repositories.ThreadRepository
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -31,8 +32,9 @@ class CommunityViewModel @Inject constructor(
     private val threadRepository: ThreadRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
-    var communities by mutableStateOf<List<Community>>(emptyList())
-    var myCommunities by mutableStateOf<List<Community>>(emptyList())
+    val allCommunities = MutableStateFlow<List<Community>>(emptyList())
+    val communities = MutableStateFlow<List<Community>>(emptyList())
+    val myCommunities = MutableStateFlow<List<Community>>(emptyList())
     var community = mutableStateOf<Community?>(null)
     var communityPosts = mutableStateOf<List<Thread>>(emptyList())
     val likesState = mutableStateMapOf<String, Boolean>()
@@ -55,14 +57,16 @@ class CommunityViewModel @Inject constructor(
             isLoading = true
             try {
                 val temp = repository.getAllCommunities()
-                myCommunities = emptyList()
-                communities = emptyList()
+                myCommunities.value = emptyList()
+                communities.value = emptyList()
+                allCommunities.value = emptyList()
                 temp.forEach { community ->
                     val com = repository.getCommunityById(id = community.id)
-                    if (com.creatorId == currentId)
-                        myCommunities = myCommunities + com
+                    allCommunities.value = allCommunities.value + com
+                    if (repository.hasSubscription(com.id))
+                        myCommunities.value = myCommunities.value + com
                     else
-                        communities = communities + com
+                        communities.value = communities.value + com
                 }
             } catch (e: Exception) {
                 errorMessage = e.message
@@ -71,7 +75,6 @@ class CommunityViewModel @Inject constructor(
             }
         }
     }
-
 
     fun loadCommunity(id: String) {
         viewModelScope.launch {
@@ -210,21 +213,26 @@ class CommunityViewModel @Inject constructor(
 
     }
 
-    fun unsubscribeFromCommunity(string: String) {viewModelScope.launch {
-        try {
-            repository.unsubscribeFromCommunity(string)
-        } catch (e: Exception) {
-            errorMessage = e.message
+    fun unsubscribeFromCommunity(string: String) {
+        viewModelScope.launch {
+            try {
+                repository.unsubscribeFromCommunity(string)
+            } catch (e: Exception) {
+                errorMessage = e.message
+            }
         }
-    }}
-    fun subscribeToCommunity(string: String) {viewModelScope.launch {
-        try {
-            repository.subscribeToCommunity(string)
-        } catch (e: Exception) {
-            errorMessage = e.message
-        }
-    }}
-
     }
+
+    fun subscribeToCommunity(string: String) {
+        viewModelScope.launch {
+            try {
+                repository.subscribeToCommunity(string)
+            } catch (e: Exception) {
+                errorMessage = e.message
+            }
+        }
+    }
+
+}
 
 

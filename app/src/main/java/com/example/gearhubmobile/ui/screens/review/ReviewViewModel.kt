@@ -5,12 +5,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.models.Review
 import com.example.gearhubmobile.data.models.User
 import com.example.gearhubmobile.data.repositories.ProfileRepository
 import com.example.gearhubmobile.data.repositories.ReviewRepository
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -75,6 +77,17 @@ suspend fun responder(id: String, responseText: String) {
         errorMessage = "Error al responder reseña"
     }
 }
+    fun deleteReview(reviewId: String) {
+        viewModelScope.launch {
+            try {
+                reviewRepository.deleteReview(reviewId)
+                loadReviews(currentId)
+            } catch (e: Exception) {
+                errorMessage = e.message
+            }
+        }
+    }
+
     suspend fun addReview(id: String, rating: Int, comment: String) {
         isLoading = true
         errorMessage = null
@@ -84,7 +97,7 @@ suspend fun responder(id: String, responseText: String) {
             if (!result.isSuccessful)
                 errorMessage = result.message()
         } catch (e: Exception) {
-            errorMessage = "Error al cargar reseñas"
+            errorMessage = "Error al crear reseñas"
             isLoading = false
         }
     }

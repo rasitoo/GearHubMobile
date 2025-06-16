@@ -55,6 +55,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -88,6 +89,8 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(communityViewModel: CommunityViewModel) {
     val navController = rememberNavController()
 
+    val myCommunities by communityViewModel.myCommunities.collectAsState()
+    val communities by communityViewModel.communities.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -122,7 +125,7 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Mis comunidades", modifier = Modifier.padding(16.dp))
                         CommunityList(
-                            communities = communityViewModel.myCommunities,
+                            communities = myCommunities,
                             viewModel = communityViewModel,
                             onCommunityClick = { community ->
                                 navController.navigate("${Routes.COMMUNITY_DETAIL_BASE}/${community.id}")
@@ -132,7 +135,7 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
                         )
                         Text("Recomendadas", modifier = Modifier.padding(16.dp))
                         CommunityList(
-                            communities = communityViewModel.communities,
+                            communities = communities,
                             viewModel = communityViewModel,
                             onCommunityClick = { community ->
                                 navController.navigate("${Routes.COMMUNITY_DETAIL_BASE}/${community.id}")
@@ -218,7 +221,6 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
 @Composable
 fun StartScreen(navController: NavHostController, viewModel: AuthViewModel) {
     var hasChecked by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
 
     LaunchedEffect(true) {
         if (!hasChecked) {

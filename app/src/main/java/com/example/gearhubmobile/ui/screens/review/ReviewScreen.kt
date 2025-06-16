@@ -1,5 +1,6 @@
 package com.example.gearhubmobile.ui.screens.review
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -89,15 +90,23 @@ fun ReviewsScreen(
             } else {
                 LazyColumn {
                     items(reviews) { review ->
+                        var expanded by rememberSaveable(review.id) { mutableStateOf(false) }
+
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 6.dp),
+                                .padding(vertical = 6.dp)
+                                .combinedClickable(
+                                    onClick = {},
+                                    onLongClick = {
+                                        if (!viewModel.currentIsWorkshop) {
+                                            expanded = true
+                                        }
+                                    }
+                                ),
                             elevation = CardDefaults.cardElevation(2.dp)
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp)
-                            ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     StarRating(rating = review.rating.toDouble())
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -163,13 +172,28 @@ fun ReviewsScreen(
                                 )
 
                             }
+
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Borrar reseña") },
+                                    onClick = {
+                                        expanded = false
+                                        viewModel.deleteReview(review.id)
+                                    }
+                                )
+                            }
                         }
                     }
+
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun StarRating(rating: Double, maxRating: Int = 5) {
@@ -256,6 +280,7 @@ fun AddReviewScreen(
         }
     }
     LaunchedEffect(isSubmitting) {
-        viewModel.addReview(viewModel.user?.userId ?: "-1", rating, comment)
+        if (isSubmitting)
+            viewModel.addReview(viewModel.user?.userId ?: "-1", rating, comment)
     }
 }

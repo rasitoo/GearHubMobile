@@ -21,9 +21,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.gearhubmobile.data.models.Community
@@ -53,13 +56,29 @@ fun HomeScreen(
     navController: NavHostController,
     communitiesViewModel: CommunityViewModel
 ) {
-    val communities by remember { derivedStateOf { communitiesViewModel.communities } }
-    val threads by remember { derivedStateOf { communitiesViewModel.communityPosts } }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    val allCommunities by communitiesViewModel.allCommunities.collectAsState()
+    val allThreads by remember { derivedStateOf { communitiesViewModel.communityPosts } }
     val isLoading = communitiesViewModel.isLoading
 
+    val filteredCommunities by remember(searchQuery, allCommunities) {
+        derivedStateOf {
+            allCommunities.filter {
+                it.comName.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
+    val filteredThreads by remember(searchQuery, allThreads) {
+        derivedStateOf {
+            allThreads.value.filter {
+                it.title.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         communitiesViewModel.loadAllPosts()
+        communitiesViewModel.loadCommunities()
     }
 
     LazyColumn(
@@ -67,6 +86,17 @@ fun HomeScreen(
             .fillMaxSize()
             .padding(8.dp)
     ) {
+        item {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Buscar comunidades o publicaciones") },
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         item {
             Text("Comunidades", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(8.dp))
@@ -76,9 +106,9 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .height(100.dp)
             ) {
-                items(communities.size) { index ->
-                    CommunityCardHorizontal(communities[index]) {
-                        navController.navigate("${Routes.COMMUNITY_DETAIL_BASE}/${communities[index].id}")
+                items(filteredCommunities.size) { index ->
+                    CommunityCardHorizontal(filteredCommunities[index]) {
+                        navController.navigate("${Routes.COMMUNITY_DETAIL_BASE}/${filteredCommunities[index].id}")
                     }
                 }
             }
@@ -87,11 +117,11 @@ fun HomeScreen(
             Text("Últimas publicaciones", style = MaterialTheme.typography.headlineSmall)
         }
 
-        items(threads.value.size) { index ->
+        items(filteredThreads.size) { index ->
             CommunityPostItem(
-                post = threads.value[index],
+                post = filteredThreads[index],
                 onClick = {
-                    navController.navigate("${Routes.POST_DETAIL_BASE}/${threads.value[index].id}")
+                    navController.navigate("${Routes.POST_DETAIL_BASE}/${filteredThreads[index].id}")
                 },
                 viewModel = communitiesViewModel
             )
