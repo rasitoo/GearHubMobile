@@ -23,7 +23,7 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val repository: AuthRepository,
     private val userRepository: ProfileRepository,
-    private val sessionManager: SessionManager
+    internal val sessionManager: SessionManager
 ) : ViewModel() {
     var name = ""
     val token = sessionManager.token
@@ -68,15 +68,15 @@ class AuthViewModel @Inject constructor(
     }
 
     suspend fun checkUserStatus(): String {
-        val result = userRepository.getUserById(sessionManager.getUserId().toString())
-        return if (result.isSuccess) {
-            "OK"
-        } else if (result.exceptionOrNull()?.message == "NOT_FOUND") {
-            "NOT_FOUND"
-        } else if (result.exceptionOrNull()?.message == "UNAUTHORIZED") {
-            "UNAUTHORIZED"
-        } else {
-            "UNKNOWN"
+        val userId = sessionManager.getUserId()
+        if (userId.isNullOrBlank()) return "UNAUTHORIZED"
+
+        val result = userRepository.getUserById(userId)
+        return when (result.exceptionOrNull()?.message) {
+            null -> "OK"
+            "NOT_FOUND" -> "NOT_FOUND"
+            "UNAUTHORIZED" -> "UNAUTHORIZED"
+            else -> "UNKNOWN"
         }
     }
 

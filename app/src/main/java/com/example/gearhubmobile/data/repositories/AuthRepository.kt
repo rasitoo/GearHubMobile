@@ -1,6 +1,7 @@
 package com.example.gearhubmobile.data.repositories
 
 
+import android.content.Context
 import com.example.gearhubmobile.data.apirest.AuthApi
 import com.example.gearhubmobile.data.models.ErrorResponse
 import com.example.gearhubmobile.data.models.LoginRequest
@@ -78,7 +79,7 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun logout() {
+    suspend fun logout(context: Context) {
         sessionManager.clearToken()
     }
 
