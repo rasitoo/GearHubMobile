@@ -54,7 +54,7 @@ class ThreadRepository @Inject constructor(private val api: ThreadApi) {
     }
 
     suspend fun getAllThreads(): List<Thread> {
-        return api.getAllThreads()
+        return api.getAllThreads().data
     }
 
     suspend fun getThreadsByCommunity(communityId: String): ThreadResponse {

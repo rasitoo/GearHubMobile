@@ -15,7 +15,13 @@ import kotlinx.coroutines.flow.map
 import org.json.JSONObject
 import javax.inject.Inject
 import javax.inject.Singleton
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_preferences")
+
+@Singleton
 class SessionManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
@@ -23,56 +29,51 @@ class SessionManager @Inject constructor(
         private val JWT_TOKEN = stringPreferencesKey("jwt_token")
     }
 
+    val token: Flow<String?> = context.dataStore.data.map { prefs -> prefs[JWT_TOKEN] }
+
     suspend fun saveToken(token: String) {
-        context.dataStore.edit { prefs ->
-            prefs[JWT_TOKEN] = token
-        }
+        context.dataStore.edit { prefs -> prefs[JWT_TOKEN] = token }
     }
 
-    val token: Flow<String?> = context.dataStore.data
-        .map { prefs -> prefs[JWT_TOKEN] }
-
     suspend fun clearToken() {
-        context.dataStore.edit { prefs ->
-            prefs.remove(JWT_TOKEN)
-        }
+        context.dataStore.edit { prefs -> prefs.remove(JWT_TOKEN) }
     }
 
     private fun decodeJwt(token: String): Triple<String, String, Int>? {
         return try {
             val parts = token.split(".")
             if (parts.size < 2) return null
-            val payloadJson = String(
-                Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
-            )
+            val payloadJson = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING))
             val payload = JSONObject(payloadJson)
 
-            val userId = payload.getString("nameid")
-            val email = payload.getString("email")
-            val userType = payload.getInt("UserType")
+            val userId = payload.optString("nameid", null) ?: return null
+            val email = payload.optString("email", null) ?: return null
+            val userType = payload.optInt("UserType", -1).takeIf { it != -1 } ?: return null
 
             Triple(userId, email, userType)
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
 
+    suspend fun getCurrentToken(): String? {
+        return context.dataStore.data.firstOrNull()?.get(JWT_TOKEN)
+    }
+
     suspend fun getUserId(): String? {
-        return token.firstOrNull()?.let { decodeJwt(it)?.first }
+        return getCurrentToken()?.let { decodeJwt(it)?.first }
     }
 
     suspend fun getUserEmail(): String? {
-        return token.firstOrNull()?.let { decodeJwt(it)?.second }
+        return getCurrentToken()?.let { decodeJwt(it)?.second }
     }
 
     suspend fun getUserType(): Int? {
-        return token.firstOrNull()?.let { decodeJwt(it)?.third }
-    }
-
-    suspend fun getCurrentToken(): String? {
-        return token.firstOrNull()
+        return getCurrentToken()?.let { decodeJwt(it)?.third }
     }
 }
+
 
 @Module
 @InstallIn(SingletonComponent::class)

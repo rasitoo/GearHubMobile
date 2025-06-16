@@ -1,6 +1,7 @@
 package com.example.gearhubmobile
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -43,10 +44,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -113,7 +119,6 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
                         Icon(Icons.Default.Add, contentDescription = "Crear comunidad")
                         Text("Crear comunidad", modifier = Modifier.padding(start = 8.dp))
                     }
-                    // Esta columna ocupa todo el espacio disponible
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Mis comunidades", modifier = Modifier.padding(16.dp))
                         CommunityList(
@@ -210,25 +215,39 @@ fun MainScreen(communityViewModel: CommunityViewModel) {
         }
     }
 }
-
 @Composable
 fun StartScreen(navController: NavHostController, viewModel: AuthViewModel) {
-    val token by viewModel.token.collectAsState(initial = null)
+    var hasChecked by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
-    LaunchedEffect(token) {
-        if (token != null) {
-            when (viewModel.checkUserStatus()) {
-                "OK" -> navController.navigate(Routes.MAIN)
+    LaunchedEffect(true) {
+        if (!hasChecked) {
+            hasChecked = true
 
-                "NOT_FOUND" -> navController.navigate(Routes.CREATE_USER)
+            val token = viewModel.sessionManager.getCurrentToken()
 
-                "UNAUTHORIZED", "UNKNOWN" -> {
-                    viewModel.clearToken()
-                    navController.navigate(Routes.LOGIN)
+            if (!token.isNullOrBlank()) {
+                when (viewModel.checkUserStatus()) {
+                    "OK" -> navController.navigate(Routes.MAIN) {
+                        popUpTo(Routes.START) { inclusive = true }
+                    }
+
+                    "NOT_FOUND" -> navController.navigate(Routes.CREATE_USER) {
+                        popUpTo(Routes.START) { inclusive = true }
+                    }
+
+                    else -> {
+                        viewModel.clearToken()
+                        navController.navigate(Routes.LOGIN) {
+                            popUpTo(Routes.START) { inclusive = true }
+                        }
+                    }
+                }
+            } else {
+                navController.navigate(Routes.LOGIN) {
+                    popUpTo(Routes.START) { inclusive = true }
                 }
             }
-        } else {
-            navController.navigate(Routes.LOGIN)
         }
     }
 
@@ -236,5 +255,3 @@ fun StartScreen(navController: NavHostController, viewModel: AuthViewModel) {
         CircularProgressIndicator()
     }
 }
-
-

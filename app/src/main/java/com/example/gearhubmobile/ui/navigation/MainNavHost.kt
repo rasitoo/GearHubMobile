@@ -19,7 +19,6 @@ import com.example.gearhubmobile.ui.screens.community.CommunityDetailScreen
 import com.example.gearhubmobile.ui.screens.community.CommunityViewModel
 import com.example.gearhubmobile.ui.screens.community.CreateCommunityScreen
 import com.example.gearhubmobile.ui.screens.home.HomeScreen
-import com.example.gearhubmobile.ui.screens.home.HomeViewModel
 import com.example.gearhubmobile.ui.screens.login.AuthViewModel
 import com.example.gearhubmobile.ui.screens.login.CreateUserScreen
 import com.example.gearhubmobile.ui.screens.login.LoginScreen
@@ -50,7 +49,6 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
     val authViewModel = hiltViewModel<AuthViewModel>()
     val chatViewModel = hiltViewModel<ChatViewModel>()
     val communityViewModel = hiltViewModel<CommunityViewModel>()
-    val homeViewModel =hiltViewModel<HomeViewModel>()
     val messageViewModel = hiltViewModel<MessageViewModel>()
     val postViewModel = hiltViewModel<PostViewModel>()
     val profileViewModel = hiltViewModel<ProfileViewModel>()
@@ -60,7 +58,7 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         navController = navController, startDestination = Routes.HOME, modifier = modifier
     ) {
         composable(Routes.HOME) {
-            HomeScreen(homeViewModel)
+            HomeScreen(navController,communityViewModel)
         }
         composable(Routes.LOGOUT) {
             LogoutScreen(authViewModel)

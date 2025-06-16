@@ -35,7 +35,7 @@ interface ThreadApi {
     suspend fun updateThread(@Body request: UpdateThreadRequest): Response<Unit>
 
     @GET("api/Thread/All")
-    suspend fun getAllThreads(): List<Thread>
+    suspend fun getAllThreads(): ThreadResponse
 
     @GET("api/Thread/AllByComunity/{idCom}")
     suspend fun getThreadsByCommunity(@Path("idCom") communityId: String): ThreadResponse
