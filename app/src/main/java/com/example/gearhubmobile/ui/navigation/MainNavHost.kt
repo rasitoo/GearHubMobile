@@ -3,6 +3,7 @@ package com.example.gearhubmobile.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -62,8 +63,10 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         composable(Routes.HOME) {
             HomeScreen(navController, communityViewModel)
         }
+
         composable(Routes.LOGOUT) {
-            LogoutScreen(authViewModel)
+            val context = LocalContext.current
+            LogoutScreen(authViewModel, context)
         }
         composable(
             route = Routes.COMMUNITY_DETAIL,
@@ -179,11 +182,15 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
             arguments = listOf(navArgument("chatId") { type = NavType.StringType })
         ) { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString("chatId") ?: "-1"
-            ChatMessagesScreen(chatId = chatId, navHostController = navController, viewModel =  messageViewModel, onChatDetailClick = { id ->
-                navController.navigate(
-                    Routes.CHAT_INFO_BASE
-                )
-            })
+            ChatMessagesScreen(
+                chatId = chatId,
+                navHostController = navController,
+                viewModel = messageViewModel,
+                onChatDetailClick = { id ->
+                    navController.navigate(
+                        Routes.CHAT_INFO_BASE
+                    )
+                })
         }
         composable(
             route = Routes.CHAT_INFO_BASE,

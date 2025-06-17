@@ -1,5 +1,6 @@
 package com.example.gearhubmobile.ui.screens.login
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -451,10 +452,10 @@ fun RecoverScreen(
 }
 
 @Composable
-fun LogoutScreen(viewModel: AuthViewModel) {
+fun LogoutScreen(viewModel: AuthViewModel, context: Context) {
 
     LaunchedEffect(Unit) {
-        viewModel.logout()
+        viewModel.logout(context)
     }
     AppNavHost(rememberNavController())
 

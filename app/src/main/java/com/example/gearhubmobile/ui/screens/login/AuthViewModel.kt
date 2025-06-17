@@ -1,6 +1,7 @@
 package com.example.gearhubmobile.ui.screens.login
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.compose.runtime.getValue
@@ -8,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.gearhubmobile.MainActivity
 import com.example.gearhubmobile.data.models.LoginResponse
 import com.example.gearhubmobile.data.repositories.AuthRepository
 import com.example.gearhubmobile.data.repositories.ProfileRepository
@@ -63,8 +65,12 @@ class AuthViewModel @Inject constructor(
             repository.recover(email)
         }
     }
-    suspend fun logout() {
+    suspend fun logout(context: Context) {
         sessionManager.clearToken()
+        val intent = Intent(context, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        context.startActivity(intent)
+        Runtime.getRuntime().exit(0)
     }
 
     suspend fun checkUserStatus(): String {
