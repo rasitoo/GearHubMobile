@@ -26,6 +26,8 @@ object Routes {
 
     const val CHAT_DETAIL = "chatDetail/{chatId}"
     const val CHAT_DETAIL_BASE = "chatDetail"
+    const val CHAT_INFO= "chatInfo/{chatId}"
+    const val CHAT_INFO_BASE = "chatInfo"
     const val CHATS = "chats"
 
     const val USER_DETAIL = "userDetail/{userId}"
@@ -33,6 +35,8 @@ object Routes {
     const val USERS = "users"
 
     const val CREATE_CHAT = "createChat"
+    const val EDIT_CHAT = "editChat/{chatId}"
+    const val EDIT_CHAT_BASE = "editChat"
     const val SELECT_USERS = "usersList"
 
     const val VEHICLES = "vehicles"

@@ -27,7 +27,7 @@ interface ChatApi {
     suspend fun getChatById(@Path("id") id: String): Chat
 
     @PUT("api/Chats/{id}")
-    suspend fun updateChat(@Path("id") id: String, @Body request: UpdateChatRequest)
+    suspend fun updateChat(@Path("id") id: String, @Body request: UpdateChatRequest): Response<Unit>
 
     @DELETE("api/Chats/{id}")
     suspend fun deleteChat(@Path("id") id: String): Response<Unit>

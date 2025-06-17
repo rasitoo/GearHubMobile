@@ -1,6 +1,7 @@
 package com.example.gearhubmobile.ui.screens.chat
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -47,8 +51,14 @@ import com.example.gearhubmobile.data.models.Chat
 fun ChatListScreen(
     navController: NavHostController,
     onChatClick: (String) -> Unit,
+    onChatEdit: (String) -> Unit,
     viewModel: ChatViewModel
 ) {
+    val chatList by viewModel.chatList.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.connectToChatList()
+        viewModel.getCurrentUserId()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,23 +88,36 @@ fun ChatListScreen(
             CircularProgressIndicator()
         } else {
             LazyColumn {
-                items(viewModel.chatList.size) { index ->
-                    val chat = viewModel.chatList[index]
-                    ChatItem(chat = chat, onClick = { onChatClick(chat.id.toString()) })
+                items(chatList.size) { index ->
+                    val chat = chatList[index]
+                    ChatItem(chat = chat, onClick = { onChatClick(chat.id.toString()) },viewModel, onEdit = {chat -> onChatEdit(chat.id)})
                 }
             }
         }
     }
 }
 
-
 @Composable
-fun ChatItem(chat: Chat, onClick: (String) -> Unit) {
+fun ChatItem(
+    chat: Chat,
+    onClick: (String) -> Unit,
+    viewModel: ChatViewModel,
+    onEdit: (Chat) -> Unit
+) {
+    var expanded by rememberSaveable(chat.id) { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
-            .clickable { onClick(chat.id.toString()) },
+            .combinedClickable(
+                onClick = { onClick(chat.id.toString()) },
+                onLongClick = {
+                    if (chat.creatorId == viewModel.currentUserId) {
+                        expanded = true
+                    }
+                }
+            ),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Row(
@@ -104,6 +127,26 @@ fun ChatItem(chat: Chat, onClick: (String) -> Unit) {
             Text(
                 text = chat.name.toString(),
                 style = MaterialTheme.typography.titleMedium
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("Editar chat") },
+                onClick = {
+                    expanded = false
+                    onEdit(chat)
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("Eliminar chat") },
+                onClick = {
+                    expanded = false
+                    viewModel.deleteChat(chat.id)
+                }
             )
         }
     }
@@ -227,3 +270,59 @@ fun CreateChatScreen(
     }
 }
 
+@Composable
+fun EditChatScreen(
+    viewModel: ChatViewModel,
+    navController: NavHostController,
+    id: String
+) {
+    val chatState = viewModel.chat.collectAsState()
+    var chatName by rememberSaveable { mutableStateOf("") }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(chatState.value?.name) {
+        chatState.value?.name?.let { chatName = it }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.loadChat(id)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Top
+    ) {
+        Text("Editar chat", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(24.dp))
+
+        OutlinedTextField(
+            value = chatName,
+            onValueChange = { chatName = it },
+            label = { Text("Nombre del chat") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                if (chatName.isBlank()) {
+                    error = "El nombre no puede estar vacío"
+                } else {
+                    viewModel.editChat(chatName, id)
+                    navController.navigate("chats")
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Editar")
+        }
+
+        if (error != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = error!!, color = Color.Red)
+        }
+    }
+}

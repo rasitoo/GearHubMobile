@@ -2,6 +2,7 @@ package com.example.gearhubmobile.data.repositories
 
 import com.example.gearhubmobile.data.apirest.FollowsApi
 import com.example.gearhubmobile.data.models.User
+import com.example.gearhubmobile.data.models.UserReduction
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -11,12 +12,12 @@ import javax.inject.Inject
  */
 class FollowsRepository @Inject constructor(private val api: FollowsApi) {
 
-    suspend fun getFollowers(id: String): List<User> {
-        return api.getFollowers(id)
+    suspend fun getFollowers(id: String): List<UserReduction> {
+        return api.getFollowers(id).data
     }
 
-    suspend fun getFollowing(id: String): List<User> {
-        return api.getFollowing(id)
+    suspend fun getFollowing(id: String): List<UserReduction> {
+        return api.getFollowing(id).data
     }
 
     suspend fun isFollowing(id: String, otherUserId: String): Boolean {
@@ -27,12 +28,12 @@ class FollowsRepository @Inject constructor(private val api: FollowsApi) {
         return api.startFollowing(id)
     }
 
-    suspend fun dropFollower(id: String, followerid: String): Response<Unit> {
-        return api.dropFollower(id, followerid)
+    suspend fun dropFollower(followerid: String): Response<Unit> {
+        return api.dropFollower(followerid)
     }
 
-    suspend fun stopFollowing(id: String, followingid: String): Response<Unit> {
-        return api.stopFollowing(id, followingid)
+    suspend fun stopFollowing(id: String): Response<Unit> {
+        return api.stopFollowing(id)
     }
 
 }

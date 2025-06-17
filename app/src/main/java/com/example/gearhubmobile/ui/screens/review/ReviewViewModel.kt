@@ -77,11 +77,11 @@ suspend fun responder(id: String, responseText: String) {
         errorMessage = "Error al responder reseña"
     }
 }
-    fun deleteReview(reviewId: String) {
+    fun deleteReview(reviewId: String, userId: String?) {
         viewModelScope.launch {
             try {
                 reviewRepository.deleteReview(reviewId)
-                loadReviews(currentId)
+                loadReviews(userId)
             } catch (e: Exception) {
                 errorMessage = e.message
             }

@@ -9,11 +9,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.models.ResponseDTO
 import com.example.gearhubmobile.data.models.Thread
 import com.example.gearhubmobile.data.models.User
+import com.example.gearhubmobile.data.repositories.FollowsRepository
 import com.example.gearhubmobile.data.repositories.ProfileRepository
 import com.example.gearhubmobile.data.repositories.ResponseRepository
 import com.example.gearhubmobile.data.repositories.ThreadRepository
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,17 +29,86 @@ class ProfileViewModel @Inject constructor(
     private val repository: ProfileRepository,
     private val threadRepository: ThreadRepository,
     private val responseRepository: ResponseRepository,
+    private val followsRepository: FollowsRepository,
     private val sessionManager: SessionManager
 ) :
     ViewModel() {
     var responsesUsers by mutableStateOf<Map<String, User>>(emptyMap())
     var threads by mutableStateOf<List<Thread>?>(emptyList())
     var responses by mutableStateOf<List<ResponseDTO>?>(emptyList())
-    var users by mutableStateOf<List<User>?>(emptyList())
+    var _users = MutableStateFlow<List<User>>(emptyList())
+    var users : StateFlow<List<User>> = _users
     var user by mutableStateOf<User?>(null)
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
     val likesState = mutableStateMapOf<String, Boolean>()
+    private val _followers = MutableStateFlow<List<User>>(emptyList())
+    var followers: StateFlow<List<User>> = _followers
+    private val _following = MutableStateFlow<List<User>>(emptyList())
+    var following: StateFlow<List<User>> = _following
+    var currentUserId by mutableStateOf<String?>(null)
+    var isFollowing by mutableStateOf(false)
+
+    init {
+        viewModelScope.launch {
+            currentUserId = sessionManager.getUserId()
+        }
+    }
+
+    fun loadFollowers(userId: String) {
+        viewModelScope.launch {
+            _followers.value = followsRepository.getFollowers(userId).mapNotNull {
+                repository.getUserById(it.userId.toString()).getOrNull()
+            }
+            _users.value = _following.value
+        }
+    }
+
+    fun loadFollowing(userId: String) {
+        viewModelScope.launch {
+            _following.value = followsRepository.getFollowing(userId).mapNotNull {
+                repository.getUserById(it.userId.toString()).getOrNull()
+            }
+            _users.value = _following.value
+        }
+    }
+    fun setUsers(users: List<User>) {
+        viewModelScope.launch {
+            _users.value = users
+        }
+    }
+
+    fun checkFollowStatus(targetUserId: String) {
+        viewModelScope.launch {
+            currentUserId = sessionManager.getUserId()
+            isFollowing = followsRepository.isFollowing(currentUserId.toString(), targetUserId)
+        }
+    }
+
+    fun toggleFollow(targetUserId: String) {
+        viewModelScope.launch {
+            currentUserId = sessionManager.getUserId()
+            if (followsRepository.isFollowing(currentUserId.toString(), targetUserId)) {
+                followsRepository.stopFollowing(targetUserId)
+                loadFollowing(currentUserId.toString())
+            } else {
+                followsRepository.startFollowing(targetUserId)
+                loadFollowing(currentUserId.toString())
+            }
+
+        }
+    }
+
+    fun toggleFollowing(targetUserId: String) {
+        viewModelScope.launch {
+            currentUserId = sessionManager.getUserId()
+            if (followsRepository.isFollowing( targetUserId,currentUserId.toString())) {
+                followsRepository.dropFollower(targetUserId)
+                loadFollowers(currentUserId.toString())
+            }
+
+        }
+    }
 
     fun getUser(id: String) {
         viewModelScope.launch {
@@ -55,7 +127,10 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             isLoading = true
             try {
-                user = repository.getUserById(sessionManager.getUserId().toString()).getOrNull()
+                val id = sessionManager.getUserId().toString()
+                user = repository.getUserById(id).getOrNull()
+                loadFollowers(id)
+                loadFollowing(id)
             } catch (e: Exception) {
                 errorMessage = e.message
             } finally {
@@ -76,6 +151,7 @@ class ProfileViewModel @Inject constructor(
             }
         }
     }
+
     fun getUsers() {
         viewModelScope.launch {
             isLoading = true
@@ -83,7 +159,7 @@ class ProfileViewModel @Inject constructor(
                 val userList = repository.getAllUsers().mapNotNull { user ->
                     repository.getUserById(user.userId).getOrNull()
                 }
-                users = userList
+                _users.value = userList
             } catch (e: Exception) {
                 errorMessage = e.message
             } finally {

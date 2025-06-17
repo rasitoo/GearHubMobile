@@ -1,6 +1,7 @@
 package com.example.gearhubmobile.ui.screens.profile
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.gearhubmobile.data.models.ResponseDTO
@@ -62,13 +66,45 @@ fun ProfileDetailScreen(
     LaunchedEffect(Unit) {
         if (userId == "null") {
             viewModel.getTokenUser()
-        } else
+        } else {
             viewModel.getUser(userId.toString())
+            viewModel.loadFollowers(userId.toString())
+            viewModel.loadFollowing(userId.toString())
+            viewModel.checkFollowStatus(userId.toString())
+        }
     }
-    val profile = viewModel.user
-    var isThread = rememberSaveable { mutableStateOf(true) }
-    val selectedTab = rememberSaveable { mutableIntStateOf(0) }
 
+    val profile = viewModel.user
+    val followers by viewModel.followers.collectAsState()
+    val users by viewModel.users.collectAsState()
+    val following by viewModel.following.collectAsState()
+    val isFollowing = viewModel.isFollowing
+    val currentUserId = viewModel.currentUserId
+
+    var showUserList by rememberSaveable { mutableStateOf(false) }
+    var showingFollowers by rememberSaveable { mutableStateOf(true) }
+
+    if (showUserList) {
+        UserListFollow(
+            isFollowerList =  showingFollowers,
+            viewModel = viewModel,
+            onUserClick = {
+                showUserList = false
+                navController.navigate("${Routes.USER_DETAIL_BASE}/${it.userId}")
+            },
+            onRemoveClick = {
+                user ->
+                if (!showingFollowers)
+                    viewModel.toggleFollow(user.userId)
+                else
+                    viewModel.toggleFollowing(user.userId)
+            }
+        )
+        return
+    }
+
+    val isThread = rememberSaveable { mutableStateOf(true) }
+    val selectedTab = rememberSaveable { mutableIntStateOf(0) }
     val tabTitles = listOf(
         "Posts por Likes",
         "Posts por Creador",
@@ -109,15 +145,46 @@ fun ProfileDetailScreen(
                     .size(120.dp)
                     .clip(CircleShape)
             )
-
             Spacer(modifier = Modifier.height(16.dp))
 
             if (profile != null) {
                 Text(profile.name, style = MaterialTheme.typography.headlineSmall)
                 Text(profile.description, style = MaterialTheme.typography.bodyMedium)
             }
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
+            Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Seguidores: ${followers.size}",
+                    modifier = Modifier.clickable {
+                        showingFollowers = true
+                        viewModel.setUsers(followers)
+                        showUserList = true
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Text(
+                    text = "Seguidos: ${following.size}",
+                    modifier = Modifier.clickable {
+                        showingFollowers = false
+                        viewModel.setUsers(following)
+                        showUserList = true
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            if (profile?.userId != currentUserId) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(onClick = {
+
+                    profile?.userId?.let { viewModel.toggleFollow(it) }
+                }) {
+                    Text(if (isFollowing) "Dejar de seguir" else "Seguir")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
             TabRow(selectedTabIndex = selectedTab.value) {
                 tabTitles.forEachIndexed { index, title ->
                     Tab(
@@ -159,6 +226,7 @@ fun ProfileDetailScreen(
                     }
                 }
             }
+
             if (profile == null) {
                 Text("Cargando perfil...", style = MaterialTheme.typography.bodyMedium)
             } else {
@@ -183,7 +251,6 @@ fun ProfileDetailScreen(
         }
     }
 }
-
 
 @Composable
 fun PostList(
@@ -305,7 +372,7 @@ fun UserListScreen(
         viewModel.getUsers()
     }
     var searchText by remember { mutableStateOf("") }
-    val users = viewModel.users ?: emptyList()
+    val users by viewModel.users.collectAsState()
     val filteredUsers = users.filter {
         it.userName.contains(searchText, ignoreCase = true)
     }
@@ -353,6 +420,73 @@ fun UserListScreen(
                                     style = MaterialTheme.typography.bodySmall.copy(
                                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                     )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+@Composable
+fun UserListFollow(
+    viewModel: ProfileViewModel,
+    isFollowerList: Boolean,
+    onUserClick: (User) -> Unit = {},
+    onRemoveClick: (User) -> Unit = {}
+) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+
+        val users by viewModel.users.collectAsState()
+        Spacer(modifier = Modifier.height(16.dp))
+        androidx.compose.foundation.lazy.LazyColumn {
+            users.forEach { user ->
+                item {
+                    androidx.compose.material3.Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable { onUserClick(user) }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                        ) {
+                            coil.compose.AsyncImage(
+                                model = "http://vms.iesluisvives.org:25003" + user.profilePicture,
+                                contentDescription = "Foto de perfil",
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(CircleShape)
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    user.userName,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    if (user.type == 2) "Taller" else "Usuario",
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                    )
+                                )
+                            }
+                            Button(
+                                onClick = { onRemoveClick(user) }
+                            ) {
+                                Text(
+                                    if (isFollowerList) "Eliminar seguidor" else "Dejar de seguir"
                                 )
                             }
                         }

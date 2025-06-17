@@ -5,6 +5,7 @@ package com.example.gearhubmobile.data.apirest
  * @date 28 mayo, 2025
  */
 import com.example.gearhubmobile.data.models.User
+import com.example.gearhubmobile.data.models.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -17,15 +18,11 @@ interface FollowsApi {
 
     @DELETE("api/Follows/StopFollowing")
     suspend fun stopFollowing(
-        @Query("userId") userId: String,
-        @Query("otherUserId") otherUserId: String
-    ): Response<Unit>
+        @Query("profileId") userId: String): Response<Unit>
 
     @DELETE("api/Follows/DropFollower")
     suspend fun dropFollower(
-        @Query("userId") userId: String,
-        @Query("followerId") followerId: String
-    ): Response<Unit>
+        @Query("profileId") userId: String): Response<Unit>
 
     @GET("api/Follows/IsFollowing/{userId}/{otherUserId}")
     suspend fun isFollowing(
@@ -34,11 +31,11 @@ interface FollowsApi {
     ): Boolean
 
     @POST("api/Follows/StartFollowing")
-    suspend fun startFollowing(@Body request: String): Response<Unit>
+    suspend fun startFollowing(@Query("profileId") profileId: String): Response<Unit>
 
     @GET("api/Follows/followers/{userId}")
-    suspend fun getFollowers(@Path("userId") userId: String): List<User>
+    suspend fun getFollowers(@Path("userId") userId: String): UserResponse
 
     @GET("api/Follows/following/{userId}")
-    suspend fun getFollowing(@Path("userId") userId: String): List<User>
+    suspend fun getFollowing(@Path("userId") userId: String): UserResponse
 }

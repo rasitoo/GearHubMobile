@@ -14,6 +14,7 @@ import com.example.gearhubmobile.StartScreen
 import com.example.gearhubmobile.ui.screens.chat.ChatListScreen
 import com.example.gearhubmobile.ui.screens.chat.ChatViewModel
 import com.example.gearhubmobile.ui.screens.chat.CreateChatScreen
+import com.example.gearhubmobile.ui.screens.chat.EditChatScreen
 import com.example.gearhubmobile.ui.screens.chat.SelectUsersScreen
 import com.example.gearhubmobile.ui.screens.community.CommunityDetailScreen
 import com.example.gearhubmobile.ui.screens.community.CommunityViewModel
@@ -25,6 +26,7 @@ import com.example.gearhubmobile.ui.screens.login.LoginScreen
 import com.example.gearhubmobile.ui.screens.login.LogoutScreen
 import com.example.gearhubmobile.ui.screens.login.RecoverScreen
 import com.example.gearhubmobile.ui.screens.login.RegisterScreen
+import com.example.gearhubmobile.ui.screens.message.ChatInfoScreen
 import com.example.gearhubmobile.ui.screens.message.ChatMessagesScreen
 import com.example.gearhubmobile.ui.screens.message.MessageViewModel
 import com.example.gearhubmobile.ui.screens.post.CreatePostScreen
@@ -58,7 +60,7 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
         navController = navController, startDestination = Routes.HOME, modifier = modifier
     ) {
         composable(Routes.HOME) {
-            HomeScreen(navController,communityViewModel)
+            HomeScreen(navController, communityViewModel)
         }
         composable(Routes.LOGOUT) {
             LogoutScreen(authViewModel)
@@ -85,6 +87,17 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
 
         composable(Routes.CREATE_CHAT) {
             CreateChatScreen(chatViewModel, navController = navController)
+        }
+        composable(
+            route = Routes.EDIT_CHAT, arguments = listOf(
+                navArgument("chatId") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                }
+            )) { backStackEntry ->
+            val chatId = backStackEntry.arguments?.getString("chatId")
+            EditChatScreen(chatViewModel, navController = navController, chatId.toString())
         }
         composable(
             route = Routes.VEHICLES_DETAIL, arguments = listOf(
@@ -141,16 +154,30 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
             )
         }
         composable(Routes.CHATS) {
-            ChatListScreen(navController, onChatClick = { chatId ->
-                navController.navigate("${Routes.CHAT_DETAIL_BASE}/$chatId")
-            }, chatViewModel)
+            ChatListScreen(
+                navController,
+                onChatClick = { chatId ->
+                    navController.navigate("${Routes.CHAT_DETAIL_BASE}/$chatId")
+                },
+                onChatEdit = { id -> navController.navigate("${Routes.EDIT_CHAT_BASE}/$id") },
+                chatViewModel
+            )
         }
         composable(
             route = Routes.CHAT_DETAIL,
             arguments = listOf(navArgument("chatId") { type = NavType.StringType })
         ) { backStackEntry ->
             val chatId = backStackEntry.arguments?.getString("chatId") ?: "-1"
-            ChatMessagesScreen(chatId = chatId, messageViewModel)
+            ChatMessagesScreen(chatId = chatId, navHostController = navController, viewModel =  messageViewModel, onChatDetailClick = { id ->
+                navController.navigate(
+                    Routes.CHAT_INFO_BASE
+                )
+            })
+        }
+        composable(
+            route = Routes.CHAT_INFO_BASE,
+        ) {
+            ChatInfoScreen(messageViewModel)
         }
 
         composable(

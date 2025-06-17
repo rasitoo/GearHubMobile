@@ -4,11 +4,23 @@ package com.example.gearhubmobile.ui.screens.message
  * @author Rodrigo
  * @date 21 mayo, 2025
  */
+import android.R
 import android.util.Base64
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.gearhubmobile.data.models.Chat
 import com.example.gearhubmobile.data.models.Message
+import com.example.gearhubmobile.data.models.User
+import com.example.gearhubmobile.data.models.UserReduction
+import com.example.gearhubmobile.data.repositories.ChatRepository
 import com.example.gearhubmobile.data.repositories.MessageRepository
+import com.example.gearhubmobile.data.repositories.ProfileRepository
+import com.example.gearhubmobile.data.repositories.UserChatRepository
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,18 +35,35 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MessageViewModel @Inject constructor(
-    private val repository: MessageRepository, private val sessionManager: SessionManager
+    private val repository: MessageRepository,
+    private val userChatRepository: UserChatRepository,
+    private val chatRepository: ChatRepository,
+    private val userRepository: ProfileRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages: StateFlow<List<Message>> = _messages
+    private val _message = MutableStateFlow<Message?>(null)
+    val message: StateFlow<Message?> = _message
     val currentUserId = sessionManager.token.map { extractUserIdFromToken(it) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+    var isLoading by mutableStateOf(false)
+    var errorMessage by mutableStateOf<String?>(null)
+    private val _navigateToChatList = MutableStateFlow(false)
+    val navigateToChatList: StateFlow<Boolean> = _navigateToChatList
 
+
+    private val _users = MutableStateFlow<List<User>>(emptyList())
+    val users: StateFlow<List<User>> = _users
+    private val _chat = MutableStateFlow<Chat?>(null)
+    val chat: StateFlow<Chat?> = _chat
+
+    private var myConnectionId: String? = null
 
     fun connectToChat(chatId: Int) {
         viewModelScope.launch {
-            val history = repository.getMessagesFiltered(chatId = chatId)
+            val history = repository.getMessagesFiltered(chatId = chatId).sortedBy { it.sentAtDate }
             _messages.value = history
 
             repository.connect(
@@ -53,12 +82,73 @@ class MessageViewModel @Inject constructor(
                     }
                 }
             )
+            userChatRepository.connect(
+                onUserJoined = { userConnectionId ->
+                    viewModelScope.launch {
+                        val userr = userRepository.getUserById(userConnectionId).getOrNull()
+                        if (userr != null)
+                            _users.update { it + userr }
+                    }
+                },
+                onUserLeft = { userConnectionId ->
+                    _users.update { users -> users.filter { it.id != userConnectionId } }
+                    if (userConnectionId == myConnectionId) {
+                        _navigateToChatList.value = true
+                    }
+                },
+                onOwnConnectionId = { connectionId ->
+                    myConnectionId = connectionId
+                }
+            )
+        }
+    }
+    fun loadChat(id: String) {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                _chat.value = chatRepository.getChatById(id)
+            } catch (e: Exception) {
+                errorMessage = e.message
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun loadUsers(id: String) {
+        viewModelScope.launch {
+            _users.value = emptyList()
+            isLoading = true
+            try {
+                val temp = userChatRepository.getUserChats(id)
+                Log.d("erase", temp.chatId.toString())
+                temp.users.forEach { it ->
+                    var result = userRepository.getUserById(it.userId.toString())
+                    if (result.isSuccess)
+                        result.getOrNull()?.let { user ->
+                            _users.value = _users.value + user
+                        }
+                }
+            } catch (e: Exception) {
+                Log.e("erase", "Error en getUserChats: ${e.message}")
+
+                errorMessage = e.message
+            } finally {
+                isLoading = false
+            }
         }
     }
 
     fun sendMessage(chatId: String, content: String) {
         viewModelScope.launch {
             repository.createMessage(content, chatId)
+        }
+    }
+
+    fun removeUserFromChat(chatId: String, userId: String) {
+        viewModelScope.launch {
+            userChatRepository.deleteUserChat(userId, chatId)
+            loadUsers(chatId)
         }
     }
 

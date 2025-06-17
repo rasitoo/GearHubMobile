@@ -99,7 +99,7 @@ fun ReviewsScreen(
                                 .combinedClickable(
                                     onClick = {},
                                     onLongClick = {
-                                        if (!viewModel.currentIsWorkshop) {
+                                        if (!viewModel.currentIsWorkshop && viewModel.currentId == review.userId) {
                                             expanded = true
                                         }
                                     }
@@ -181,7 +181,7 @@ fun ReviewsScreen(
                                     text = { Text("Borrar reseña") },
                                     onClick = {
                                         expanded = false
-                                        viewModel.deleteReview(review.id)
+                                        viewModel.deleteReview(review.id, userId )
                                     }
                                 )
                             }
