@@ -76,7 +76,6 @@ fun ProfileDetailScreen(
 
     val profile = viewModel.user
     val followers by viewModel.followers.collectAsState()
-    val users by viewModel.users.collectAsState()
     val following by viewModel.following.collectAsState()
     val isFollowing = viewModel.isFollowing
     val currentUserId = viewModel.currentUserId
@@ -86,20 +85,20 @@ fun ProfileDetailScreen(
 
     if (showUserList) {
         UserListFollow(
-            isFollowerList =  showingFollowers,
+            isFollowerList = showingFollowers,
             viewModel = viewModel,
             onUserClick = {
                 showUserList = false
                 navController.navigate("${Routes.USER_DETAIL_BASE}/${it.userId}")
             },
-            onRemoveClick = {
-                user ->
+            onRemoveClick = { user ->
                 if (!showingFollowers)
                     viewModel.toggleFollow(user.userId)
                 else
                     viewModel.toggleFollowing(user.userId)
             }
         )
+
         return
     }
 
@@ -153,7 +152,10 @@ fun ProfileDetailScreen(
             }
             Spacer(modifier = Modifier.height(12.dp))
 
-            Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     text = "Seguidores: ${followers.size}",
                     modifier = Modifier.clickable {
@@ -429,6 +431,7 @@ fun UserListScreen(
         }
     }
 }
+
 @Composable
 fun UserListFollow(
     viewModel: ProfileViewModel,
@@ -482,13 +485,14 @@ fun UserListFollow(
                                     )
                                 )
                             }
-                            Button(
-                                onClick = { onRemoveClick(user) }
-                            ) {
-                                Text(
-                                    if (isFollowerList) "Eliminar seguidor" else "Dejar de seguir"
-                                )
-                            }
+                            if (viewModel.user?.id.toString() == viewModel.currentUserId.toString())
+                                Button(
+                                    onClick = { onRemoveClick(user) }
+                                ) {
+                                    Text(
+                                        if (isFollowerList) "Eliminar seguidor" else "Dejar de seguir"
+                                    )
+                                }
                         }
                     }
                 }
