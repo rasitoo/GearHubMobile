@@ -42,6 +42,7 @@ object Routes {
     const val VEHICLES = "vehicles"
     const val VEHICLES_DETAIL = "vehicles/{userId}"
     const val ADD_VEHICLE = "add_vehicle"
+    const val ADD_VEHICLE_EXTENDED = "add_vehicle/{vehicleId}"
 
     const val REVIEWS = "reviews"
     const val REVIEWS_DETAIL = "reviews/{userId}"

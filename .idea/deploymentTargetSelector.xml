@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="GearHubMobile.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-06-17T02:09:44.881628500Z">
+        <DropdownSelection timestamp="2025-06-17T02:47:08.352212200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=QV7102ME1T" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=d954c02a140cf2e9" />
             </handle>
           </Target>
         </DropdownSelection>

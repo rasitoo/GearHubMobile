@@ -110,6 +110,17 @@ fun MainNavHost(navController: NavHostController, modifier: Modifier) {
             val userId = backStackEntry.arguments?.getString("userId")
             VehiclesScreen(userId, vehicleViewModel, navController = navController)
         }
+        composable(
+            route = Routes.ADD_VEHICLE_EXTENDED, arguments = listOf(
+                navArgument("vehicleId") {
+                    type = NavType.StringType
+                    defaultValue = null
+                    nullable = true
+                }
+            )) { backStackEntry ->
+            val vehicleId = backStackEntry.arguments?.getString("vehicleId")
+            AddVehicleScreen(vehicleViewModel, navController = navController)
+        }
         composable(Routes.ADD_VEHICLE) {
             AddVehicleScreen(vehicleViewModel, navController = navController)
         }

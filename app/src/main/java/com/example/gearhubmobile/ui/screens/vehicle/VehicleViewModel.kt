@@ -7,11 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gearhubmobile.data.models.User
+import com.example.gearhubmobile.data.models.Vehicle
 import com.example.gearhubmobile.data.models.VehicleDetail
 import com.example.gearhubmobile.data.repositories.ProfileRepository
 import com.example.gearhubmobile.data.repositories.VehicleRepository
 import com.example.gearhubmobile.utils.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,6 +32,9 @@ class VehicleViewModel @Inject constructor(
     var user by mutableStateOf<User?>(null)
     var userId by mutableStateOf<String?>(null)
     val vehicles = mutableStateListOf<VehicleDetail>()
+    var _selectedVehicle = MutableStateFlow<VehicleDetail?>(null)
+    var selectedVehicle: StateFlow<VehicleDetail?> = _selectedVehicle
+
     var errorMessage by mutableStateOf<String?>(null)
     var isLoading by mutableStateOf(false)
 
@@ -46,6 +52,19 @@ class VehicleViewModel @Inject constructor(
             try {
                 userId = id ?: sessionManager.getUserId()
                 user = profileRepository.getUserById(userId.toString()).getOrNull()
+            } catch (e: Exception) {
+                errorMessage = e.message
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    fun setSelectedVehicle(id: VehicleDetail?) {
+        viewModelScope.launch {
+
+            try {
+                _selectedVehicle.value = id
             } catch (e: Exception) {
                 errorMessage = e.message
             } finally {
@@ -81,6 +100,34 @@ class VehicleViewModel @Inject constructor(
             } catch (e: Exception) {
                 errorMessage = e.message
             }
+        }
+    }
+
+    fun deleteVehicle(vehicleId: String) {
+        viewModelScope.launch {
+            repository.deleteVehicle(vehicleId)
+            loadVehicles(userId)
+        }
+    }
+
+    fun getVehicleById(vehicleId: String) {
+        viewModelScope.launch {
+            val vehicle = repository.getVehicleById(vehicleId)
+            _selectedVehicle.value = vehicle
+        }
+    }
+
+    fun updateVehicle(
+        vehicleId: String,
+        vin: String,
+        brand: String,
+        model: String,
+        year: Int,
+        license: String
+    ) {
+        viewModelScope.launch {
+            repository.updateVehicle(vehicleId, vin, brand, model, year, license)
+            loadVehicles(userId)
         }
     }
 
