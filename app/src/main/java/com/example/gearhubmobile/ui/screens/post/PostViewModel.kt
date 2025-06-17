@@ -190,13 +190,14 @@ private suspend fun updateUsersForResponses(responses: List<ResponseDTO>) {
     fun createResponse(
         content: String,
         threadId: String,
-        parentId: String
+        parentId: String?
     ) {
 
         viewModelScope.launch {
             responseRepository.createResponse(
                 content = content, threadId = threadId, parentId = parentId
             )
+            loadThread(threadId)
         }
     }
 

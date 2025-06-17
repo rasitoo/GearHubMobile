@@ -44,10 +44,11 @@ class ProfileViewModel @Inject constructor(
     val likesState = mutableStateMapOf<String, Boolean>()
     private val _followers = MutableStateFlow<List<User>>(emptyList())
     var followers: StateFlow<List<User>> = _followers
-    private val _following = MutableStateFlow<List<User>>(emptyList())
-    var following: StateFlow<List<User>> = _following
+    private val _usersFollowing = MutableStateFlow<List<User>>(emptyList())
+    var usersFollowing: StateFlow<List<User>> = _usersFollowing
     var currentUserId by mutableStateOf<String?>(null)
-    var isFollowing by mutableStateOf(false)
+    var _isFollowing = MutableStateFlow(false)
+    var isFollowing : StateFlow<Boolean> = _isFollowing
 
     init {
         viewModelScope.launch {
@@ -60,16 +61,16 @@ class ProfileViewModel @Inject constructor(
             _followers.value = followsRepository.getFollowers(userId).mapNotNull {
                 repository.getUserById(it.userId.toString()).getOrNull()
             }
-            _users.value = _following.value
+            _users.value = _usersFollowing.value
         }
     }
 
     fun loadFollowing(userId: String) {
         viewModelScope.launch {
-            _following.value = followsRepository.getFollowing(userId).mapNotNull {
+            _usersFollowing.value = followsRepository.getFollowing(userId).mapNotNull {
                 repository.getUserById(it.userId.toString()).getOrNull()
             }
-            _users.value = _following.value
+            _users.value = _usersFollowing.value
         }
     }
     fun setUsers(users: List<User>) {
@@ -81,7 +82,7 @@ class ProfileViewModel @Inject constructor(
     fun checkFollowStatus(targetUserId: String) {
         viewModelScope.launch {
             currentUserId = sessionManager.getUserId()
-            isFollowing = followsRepository.isFollowing(currentUserId.toString(), targetUserId)
+            _isFollowing.value = followsRepository.isFollowing(currentUserId.toString(), targetUserId)
         }
     }
 
@@ -90,10 +91,13 @@ class ProfileViewModel @Inject constructor(
             currentUserId = sessionManager.getUserId()
             if (followsRepository.isFollowing(currentUserId.toString(), targetUserId)) {
                 followsRepository.stopFollowing(targetUserId)
-                loadFollowing(currentUserId.toString())
+                loadFollowers(currentUserId.toString())
+                _isFollowing.value = false
             } else {
                 followsRepository.startFollowing(targetUserId)
-                loadFollowing(currentUserId.toString())
+                loadFollowers(currentUserId.toString())
+                _isFollowing.value = true
+
             }
 
         }
@@ -144,6 +148,11 @@ class ProfileViewModel @Inject constructor(
             isLoading = true
             try {
                 threads = threadRepository.getThreadsByLikes(id).toList()
+                likesState.clear()
+                threads?.forEach { thread ->
+                    val liked = threadRepository.hasLikedThread(thread.id)
+                    likesState[thread.id] = liked
+                }
             } catch (e: Exception) {
                 errorMessage = e.message
             } finally {
@@ -212,7 +221,7 @@ class ProfileViewModel @Inject constructor(
                 responses = responseRepository.getResponsesByCreator(id).toList()
                 responsesUsers = responses?.mapNotNull { response ->
                     repository.getUserById(response.creatorId).getOrNull()?.let { user ->
-                        response.id to user
+                        response.creatorId to user
                     }
                 }?.toMap() ?: emptyMap()
 

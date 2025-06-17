@@ -271,13 +271,12 @@ fun PostDetailScreen(
                             label = { Text("Escribe tu respuesta...") },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
                         )
                         Button(
                             onClick = {
                                 viewModel.createResponse(
                                     threadId = thread.id,
-                                    parentId = "0",
+                                    parentId = null,
                                     content = replyText
                                 )
                                 replyText = ""

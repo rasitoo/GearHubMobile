@@ -34,7 +34,7 @@ class ResponseRepository @Inject constructor(private val api: ResponseApi) {
 
     suspend fun createResponse(
         content: String,
-        parentId: String,
+        parentId: String?,
         threadId: String,
     ): Response<Unit> {
         val responseRequest = CreateResponseRequest(content = content, parentId = parentId, threadId = threadId)

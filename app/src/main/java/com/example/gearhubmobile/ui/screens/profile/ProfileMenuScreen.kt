@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +43,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.gearhubmobile.data.models.ResponseDTO
@@ -76,8 +74,8 @@ fun ProfileDetailScreen(
 
     val profile = viewModel.user
     val followers by viewModel.followers.collectAsState()
-    val following by viewModel.following.collectAsState()
-    val isFollowing = viewModel.isFollowing
+    val following by viewModel.usersFollowing.collectAsState()
+    val isFollowing by viewModel.isFollowing.collectAsState()
     val currentUserId = viewModel.currentUserId
 
     var showUserList by rememberSaveable { mutableStateOf(false) }
@@ -187,10 +185,10 @@ fun ProfileDetailScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-            TabRow(selectedTabIndex = selectedTab.value) {
+            TabRow(selectedTabIndex = selectedTab.intValue) {
                 tabTitles.forEachIndexed { index, title ->
                     Tab(
-                        selected = selectedTab.value == index,
+                        selected = selectedTab.intValue == index,
                         onClick = { selectedTab.value = index },
                         text = { Text(title, fontSize = 12.sp) }
                     )
@@ -321,9 +319,7 @@ fun ResponseList(responses: List<ResponseDTO>?, viewModel: ProfileViewModel) {
                 Column(Modifier.padding(12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(
-                            model = "http://vms.iesluisvives.org:25003" + viewModel.responsesUsers.get(
-                                it.creatorId
-                            )?.profilePicture,
+                            model = "http://vms.iesluisvives.org:25003" + viewModel.responsesUsers[it.creatorId]?.profilePicture,
                             contentDescription = "Avatar",
                             modifier = Modifier
                                 .size(24.dp)

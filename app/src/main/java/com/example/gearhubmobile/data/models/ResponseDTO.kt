@@ -24,7 +24,7 @@ data class ResponseRequest(
 
 data class CreateResponseRequest(
     val content: String,
-    val parentId: String,
+    val parentId: String?,
     val threadId: String
 )
 

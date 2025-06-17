@@ -268,6 +268,7 @@ fun AddReviewScreen(
                         error = "Escribe un comentario"
                     } else {
                         isSubmitting = true
+                        navController.popBackStack()
                         error = null
                     }
                 },
